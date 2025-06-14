@@ -1,4 +1,4 @@
-import { MainLayout } from '@/app/layouts/Main';
+import { MainLayout } from '@/app/layouts/MainLayout';
 import { components, ui } from '@ui8kit';
 
 export const { Button } = ui.button;
@@ -51,7 +51,6 @@ function App() {
 
   return (
     <MainLayout title={page.title} description={page.excerpt}>
-      {/* Реализовать макет и сайдбар и перенести все компоненты из Elysia */}
       <Section>
         <SectionHeader>
           <SectionTitle>{page.title}</SectionTitle>
