@@ -5,6 +5,8 @@
 @import "./semantic/article.css";
 @import "./semantic/markup.css";
 @import "./semantic/nav.css";
+@import "./semantic/main.css";
+@import "./semantic/sheet.css";
 
 @import "./source/latty.css";
 @import "./source/shadcn4.css";
