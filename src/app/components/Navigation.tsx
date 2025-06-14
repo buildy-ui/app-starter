@@ -22,6 +22,9 @@ export function Navigation() {
           <NavItem>
             <NavLink href="/about">About</NavLink>
           </NavItem>
+          <NavItem>
+            <NavLink href="/archive">Archive</NavLink>
+          </NavItem>
         </NavList>
       </Nav>
 
