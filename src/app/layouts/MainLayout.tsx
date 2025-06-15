@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { components } from '@ui8kit';
 import { Navigation } from "@/app/components/Navigation";
 import { Sidebar } from "@/app/components/Sidebar";
+import { SiteLogo } from "@/app/components/SiteLogo";
 
 export const { Main } = components.main;
 export const { P } = components.markup;
@@ -50,8 +51,8 @@ export const MainLayout = ({ title, description, children }: RootLayoutProps) =>
         <SheetOverlay />
         <SheetContent>
           <SheetHeader>
-            <SheetTitle>Menu</SheetTitle>
-            <SheetDescription>Navigation menu</SheetDescription>
+            <SheetTitle><SiteLogo /></SheetTitle>
+            <SheetDescription>UI8Kit Design System</SheetDescription>
           </SheetHeader>
 
           <SheetBody>

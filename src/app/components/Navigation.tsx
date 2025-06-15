@@ -29,7 +29,7 @@ export function Navigation() {
       </Nav>
 
       <NavGroupButtons>
-        <Button className={`${mode === 'semantic' ? '!bg-teal-500 text-white' : 'bg-primary text-white'}`} variant="default" size="lg" onClick={toggleMode}>
+        <Button className={`${mode === 'semantic' ? '!bg-teal-500 text-white' : 'bg-primary text-white'}`} variant="default" size="sm" onClick={toggleMode}>
           Switch to {mode === 'utility' ? 'semantic' : 'utility'}
         </Button>
         <DarkMode />
