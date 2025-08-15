@@ -1,6 +1,10 @@
-import { Block, Stack, Text, Button, Icon } from "@ui8kit/core"
-import { Moon, Sun } from "lucide-react"
 import { useCallback, useEffect, useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+import { LandingPage } from "./pages/LandingPage";
+
+import { Box, Button, Icon } from "@ui8kit/core"
+import { Moon, Sun } from "lucide-react"
 
 function App() {
 
@@ -24,17 +28,18 @@ function App() {
   }, []);
 
   return (
-    <Block h="screen" className="content-center bg-gradient-to-br from-secondary/15 to-primary/15">
-      <Stack ta="center" justify="center" align="center" gap="lg" mx="auto">
-        <Text size="3xl" fw="bold">Hello World!</Text>
-        <Text size="lg" c="secondary-foreground">This is a minimal Vite SWC + Tailwind 3 + Shadcn colors React starter app</Text>
-        <Button onClick={toggleDarkMode}>
-          {isDarkMode ? "Light Mode" : "Dark Mode"}
-          <Icon c="primary-foreground" lucideIcon={isDarkMode ? Moon : Sun} />
-        </Button>
-      </Stack>
-    </Block>
-  )
+      <Router>
+        <Box position="fixed" style={{ right: 5, bottom: 10 }}>
+          <Button variant="link" onClick={toggleDarkMode}>
+            <Icon lucideIcon={isDarkMode ? Moon : Sun} />
+          </Button>
+        </Box>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+        </Routes>
+      </Router>
+      
+  );
 }
 
-export default App 
+export default App; 
