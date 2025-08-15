@@ -24,10 +24,10 @@ cd my-project
 git clone https://github.com/buildy-ui/app-starter.git .
 ```
 
-### Clone from specific this branch version
+### Clone from specific branch version
 ```bash
-# tailwind - minimal React App Starter
-git clone -b tailwind https://github.com/buildy-ui/app-starter.git my-project
+# shadcn - minimal React App Starter
+git clone -b shadcn https://github.com/buildy-ui/app-starter.git my-project
 cd my-project
 ```
 
@@ -98,7 +98,7 @@ Replace `public/buildy.svg` with your own 24x24 icon.
 
 This repository contains multiple starter templates in different branches:
 
-- `tailwind` - This minimal starter (current)
+- `shadcn` - This minimal starter (current)
 - `main` - Documentation and overview
 - More templates coming soon...
 
