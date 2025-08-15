@@ -26,8 +26,8 @@ git clone https://github.com/buildy-ui/app-starter.git .
 
 ### Clone from specific branch version
 ```bash
-# shadcn - minimal React App Starter
-git clone -b shadcn https://github.com/buildy-ui/app-starter.git my-project
+# ui8kit-boilerplate - minimal React App Starter
+git clone -b ui8kit-boilerplate https://github.com/buildy-ui/app-starter.git my-project
 cd my-project
 ```
 
@@ -98,7 +98,7 @@ Replace `public/buildy.svg` with your own 24x24 icon.
 
 This repository contains multiple starter templates in different branches:
 
-- `shadcn` - This minimal starter (current)
+- `ui8kit-boilerplate` - This minimal starter (current)
 - `main` - Documentation and overview
 - More templates coming soon...
 
