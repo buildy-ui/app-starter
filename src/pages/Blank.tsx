@@ -1,4 +1,4 @@
-import { Block, Grid,Stack, Box, Button, Title, Text  } from "@ui8kit/core";
+import { Block, Grid, Stack, Box, Button, Title, Text  } from "@ui8kit/core";
 import { useAppTheme } from '@/hooks/use-theme';
 
 const content = {

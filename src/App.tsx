@@ -1,6 +1,7 @@
 "use client";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/providers/ThemeProvider";
+import { SemanticProvider } from "@/providers/SemanticProvider";
 
 import { Dashboard } from "@/layouts";
 import { Blank, _404 } from "@/pages";
@@ -10,14 +11,15 @@ function App() {
 
   return (
     <ThemeProvider theme={lesseUITheme}>
-      <Router>
-        <Routes>
-          <Route index element={<Dashboard page={Blank} />} />
-          <Route path="*" element={<Dashboard page={_404} />} />
-        </Routes>
-      </Router>
+      <SemanticProvider mode="collect-and-clean">
+        <Router>
+          <Routes>
+            <Route index element={<Blank />} />
+          </Routes>
+        </Router>
+      </SemanticProvider>
     </ThemeProvider>
-      
+
   );
 }
 
