@@ -1,43 +1,22 @@
-import { useCallback, useEffect, useState } from "react";
+"use client";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 
-import { LandingPage } from "./pages/LandingPage";
-
-import { Box, Button, Icon } from "@ui8kit/core"
-import { Moon, Sun } from "lucide-react"
+import { Dashboard } from "@/layouts";
+import { Blank, _404 } from "@/pages";
+import { lesseUITheme } from "@ui8kit/theme";
 
 function App() {
 
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  // Dark mode toggle
-  const toggleDarkMode = useCallback(() => {
-    setIsDarkMode(prev => {
-      const newMode = !prev;
-      document.documentElement.classList.toggle('dark', newMode);
-      return newMode;
-    });
-  }, []);
-
-  // Initialize dark mode from system preference
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const initialMode = mediaQuery.matches;
-    setIsDarkMode(initialMode);
-    document.documentElement.classList.toggle('dark', initialMode);
-  }, []);
-
   return (
+    <ThemeProvider theme={lesseUITheme}>
       <Router>
-        <Box position="fixed" style={{ right: 5, bottom: 10 }}>
-          <Button variant="link" onClick={toggleDarkMode}>
-            <Icon lucideIcon={isDarkMode ? Moon : Sun} />
-          </Button>
-        </Box>
         <Routes>
-          <Route path="/" element={<LandingPage />} />
+          <Route index element={<Dashboard page={Blank} />} />
+          <Route path="*" element={<Dashboard page={_404} />} />
         </Routes>
       </Router>
+    </ThemeProvider>
       
   );
 }
