@@ -26,6 +26,7 @@ export function Dashboard({ page }: DashboardLayoutProps) {
         h={isNavFixed ? 'screen' : undefined}
         position="relative"
         w="full"
+        data-class="dashboard-main"
         style={
           isNavFixed
             ? { marginTop: 'var(--app-navbar-h)', height: 'calc(100vh - var(--app-navbar-h))' }
@@ -35,7 +36,7 @@ export function Dashboard({ page }: DashboardLayoutProps) {
         <PanelGroup direction="horizontal" ref={panelGroupRef} autoSaveId="dashboard-panels">
           {!isMobile && (
             <Panel
-              id="sidebar"
+              id="panel-sidebar"
               order={1}
               ref={sidebarPanelRef}
               defaultSize={20}
@@ -43,15 +44,16 @@ export function Dashboard({ page }: DashboardLayoutProps) {
               maxSize={40}
               collapsible={true}
             >
-              <Sidebar className="bg-card/50 border-r border-border h-full w-full" data-class="sidebar" />
+              <Sidebar className="bg-card/50 border-r border-border h-full w-full" data-class="dashboard-sidebar" />
             </Panel>
           )}
           {!isMobile && (
             <PanelResizeHandle data-class="resize-handle" className="w-1 bg-border data-[panel-group-direction=horizontal]:cursor-col-resize" />
           )}
-          <Panel id="main" order={2} defaultSize={!isMobile ? 80 : 100} minSize={50} className="flex flex-col" data-class="resize-panel">
+          <Panel id="panel-main" order={2} defaultSize={!isMobile ? 80 : 100} minSize={50} className="flex flex-col" data-class="resize-panel">
             <Box
-              p={!isMobile && "md"}
+              data-class="panel-main"
+              p="md"
               overflow={isNavFixed ? 'auto' : 'visible'}
               style={isNavFixed ? { height: '100%' } : undefined}
             >
