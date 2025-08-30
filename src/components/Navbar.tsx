@@ -1,4 +1,4 @@
-import { Block, Button, Icon, Text, Group, Sheet, Box, BaseFlex } from "@ui8kit/core";
+import { Block, Button, Icon, Text, Group, Sheet, Box } from "@ui8kit/core";
 import { Atom, Moon, Sun, Menu, BarChart3, MessageCircle } from "lucide-react";
 import { useLayoutEffect, useRef } from 'react';
 import { useMobile } from "@/hooks/use-mobile";
@@ -32,8 +32,8 @@ export function Navbar({ isDarkMode, toggleDarkMode }: { isDarkMode: boolean, to
       className={`border-b border-border ${isNavFixed ? 'fixed top-0 left-0 right-0 z-50' : ''}`}
       position={isNavFixed ? 'fixed' : 'relative'}
     >
-      <Box className="flex" wrap="nowrap" justify="between" align="center" data-class="navbar-group">
-        <Group onClick={() => navigate('/')} gap="sm" align="center" className="cursor-pointer">
+      <Group justify="between" align="center">
+        <Group onClick={() => navigate('/')} gap="sm" align="center" className="cursor-pointer" data-class="navbar-brand">
           <Icon size="lg" c="primary" component="span" lucideIcon={Atom} />
           <Text size="lg" fw="bold" c="secondary-foreground">
             BuildY/UI
@@ -41,24 +41,24 @@ export function Navbar({ isDarkMode, toggleDarkMode }: { isDarkMode: boolean, to
         </Group>
 
         {!isMobile && (
-          <Group gap="xs" align="center">
-            <Button variant="ghost" size={buttonSize.default} rounded={rounded.button} onClick={() => navigate('/example-page')}>
+          <Group gap="xs" align="center" data-class="navbar-actions">
+            <Button data-class="navbar-item" variant="ghost" size={buttonSize.default} rounded={rounded.button} onClick={() => navigate('/stat')}>
               <Icon component="span" lucideIcon={BarChart3} />
-              <Text size="sm" c="muted">Example</Text>
+              <Text size="sm" c="muted">Stat</Text>
             </Button>
-            <Button variant="ghost" size={buttonSize.default} rounded={rounded.button} onClick={() => navigate('/unknown-page')}>
+            <Button data-class="navbar-item" variant="ghost" size={buttonSize.default} rounded={rounded.button} onClick={() => navigate('/chat')}>
               <Icon component="span" lucideIcon={MessageCircle} />
-              <Text size="sm" c="muted">404</Text>
+              <Text size="sm" c="muted">Chat</Text>
             </Button> 
-            <Button variant="ghost" size={buttonSize.default} rounded={rounded.button} onClick={toggleDarkMode}>
+            <Button data-class="navbar-item" variant="ghost" size={buttonSize.default} rounded={rounded.button} onClick={toggleDarkMode}>
               <Icon component="span" lucideIcon={isDarkMode ? Moon : Sun} />
             </Button>
           </Group>
         )}
 
         {isMobile && (
-          <Group gap="xs" align="center">
-            <Button variant="ghost" size={buttonSize.default} rounded={rounded.button} onClick={toggleDarkMode}>
+          <Group gap="xs" align="center" data-class="navbar-actions">
+            <Button data-class="navbar-item" variant="ghost" size={buttonSize.default} rounded={rounded.button} onClick={toggleDarkMode}>
               <Icon component="span" lucideIcon={isDarkMode ? Moon : Sun} />
             </Button>
             <Sheet id="main-nav" side="left" size="md" triggerIcon={Menu} title="Menu">
@@ -68,7 +68,7 @@ export function Navbar({ isDarkMode, toggleDarkMode }: { isDarkMode: boolean, to
             </Sheet>
           </Group>
         )}
-      </Box>
+      </Group>
     </Block>
   )
 }

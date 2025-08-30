@@ -10,18 +10,18 @@ interface SidebarProps {
 
 export function Sidebar({ className, dataClass }: SidebarProps) {
   const { rounded } = useAppTheme();
-
+  
   return (
     <Block component="aside" className={className} data-class={dataClass}>
-      <Box overflow="auto" h="screen">
-        <Stack p="md" align="start">
-          <Text c="muted">Sidebar</Text>
+      <Box overflow="auto" h="screen" data-class="sidebar-main">
+        <Stack p="md" align="start" data-class="sidebar-header">
+          <Text c="muted" data-class="sidebar-header-text">Sidebar</Text>
         </Stack>
-        <Stack gap="lg" p="md">
+        <Stack gap="lg" p="md" data-class="sidebar-content">
           <NavMenu />
-          <Card rounded={rounded?.default}>
-            <Text size="xl" c="muted">Widget</Text>
-            <Text size="xs" c="muted">This is a widget description that can be used to display information to the user.</Text>
+          <Card rounded={rounded?.default} data-class="sidebar-widget">
+            <Text size="xl" c="muted" data-class="widget-title">Widget</Text>
+            <Text size="xs" c="muted" data-class="widget-description">This is a widget description that can be used to display information to the user.</Text>
           </Card>
         </Stack>
       </Box>
