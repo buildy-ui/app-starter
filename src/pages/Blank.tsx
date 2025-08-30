@@ -17,7 +17,7 @@ export function Blank() {
             <Text c="muted">{content.description}</Text>
           </Box>
           <Box className="col-span-1 flex" justify="end" align="end" data-class="home-button">
-            <Button onClick={() => console.log("Button clicked")}>Click me</Button>
+            <Button data-class="button-blank" onClick={() => console.log("Button clicked")}>Click me</Button>
           </Box>
         </Grid>
         <Box p="md" rounded={rounded?.default} shadow="none" bg="card" border="1px" aspect="16/9" w="full"></Box>

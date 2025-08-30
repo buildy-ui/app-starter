@@ -1,4 +1,4 @@
-import { Block, Button, Icon, Text, Group, Sheet, Box } from "@ui8kit/core";
+import { Block, Button, Icon, Text, Group, Sheet, Box, BaseFlex } from "@ui8kit/core";
 import { Atom, Moon, Sun, Menu, BarChart3, MessageCircle } from "lucide-react";
 import { useLayoutEffect, useRef } from 'react';
 import { useMobile } from "@/hooks/use-mobile";
@@ -32,7 +32,7 @@ export function Navbar({ isDarkMode, toggleDarkMode }: { isDarkMode: boolean, to
       className={`border-b border-border ${isNavFixed ? 'fixed top-0 left-0 right-0 z-50' : ''}`}
       position={isNavFixed ? 'fixed' : 'relative'}
     >
-      <Group justify="between" align="center">
+      <Box className="flex" wrap="nowrap" justify="between" align="center" data-class="navbar-group">
         <Group onClick={() => navigate('/')} gap="sm" align="center" className="cursor-pointer">
           <Icon size="lg" c="primary" component="span" lucideIcon={Atom} />
           <Text size="lg" fw="bold" c="secondary-foreground">
@@ -68,7 +68,7 @@ export function Navbar({ isDarkMode, toggleDarkMode }: { isDarkMode: boolean, to
             </Sheet>
           </Group>
         )}
-      </Group>
+      </Box>
     </Block>
   )
 }

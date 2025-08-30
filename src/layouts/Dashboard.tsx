@@ -55,9 +55,9 @@ export function Dashboard({ page }: DashboardLayoutProps) {
               overflow={isNavFixed ? 'auto' : 'visible'}
               style={isNavFixed ? { height: '100%' } : undefined}
             >
-              <Container>
+              <div className="max-w-screen-xl mx-auto px-4 text-left" data-class="container">
                 {(() => { const Page = page; return <Page />; })()}
-              </Container>
+              </div>
             </Box>
           </Panel>
         </PanelGroup>
