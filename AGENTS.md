@@ -264,7 +264,7 @@ bun run typecheck
 ## Reference Links
 
 - [101 Guide](./docs/101-guide.md) — Complete introduction
-- [React Strict DOM](https://github.com/nicksrandall/react-strict-dom) — RSD documentation
+- [React Strict DOM](https://github.com/facebook/react-strict-dom) — RSD documentation
 - [shadcn/ui](https://ui.shadcn.com/) — Color token reference
 - [Tailwind CSS](https://tailwindcss.com/docs) — Class reference for TWSX
 
