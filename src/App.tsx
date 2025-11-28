@@ -1,45 +1,45 @@
-import { useCallback, useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Block, Container, Button, Title, Text, Stack } from "@ui8kit/core"
+import { ThemeProvider, useTheme } from "@/providers/theme"
 
-import { LandingPage } from "./pages/LandingPage";
+// LesseUI Theme
+export const lesseUITheme = {
+  name: "LesseUI",
+  rounded: {
+    // none | default | sm | md | lg | xl | "2xl" | "3xl" | full
+    default: "2xl" as const,
+    button: "lg" as const,
+    badge: "full" as const
+  },
+  buttonSize: {
+    // xs | sm | default | md | lg | xl | icon
+    default: "sm" as const,
+    badge: "sm" as const
+  },
+  isNavFixed: true
+} as const;
 
-import { Box, Button, Icon } from "@ui8kit/core"
-import { Moon, Sun } from "lucide-react"
-
-function App() {
-
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  // Dark mode toggle
-  const toggleDarkMode = useCallback(() => {
-    setIsDarkMode(prev => {
-      const newMode = !prev;
-      document.documentElement.classList.toggle('dark', newMode);
-      return newMode;
-    });
-  }, []);
-
-  // Initialize dark mode from system preference
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const initialMode = mediaQuery.matches;
-    setIsDarkMode(initialMode);
-    document.documentElement.classList.toggle('dark', initialMode);
-  }, []);
+function AppContent() {
+  const { toggleDarkMode, isDarkMode } = useTheme()
 
   return (
-      <Router>
-        <Box position="fixed" style={{ right: 5, bottom: 10 }}>
-          <Button variant="link" onClick={toggleDarkMode}>
-            <Icon lucideIcon={isDarkMode ? Moon : Sun} />
+    <Block variant="section" py="xl">
+      <Container ta="center">
+        <Stack gap="lg" align="center">
+          <Title fw="bold" size="5xl">Welcome to UI8Kit</Title>
+          <Text>Create beautiful web applications with ease using our UI components</Text>
+          <Button variant={isDarkMode ? "primary" : "secondary"} onClick={toggleDarkMode}>
+            <Text fw="bold">{!isDarkMode ? "🌙 Dark Mode" : "☀️ Light Mode"}</Text>
           </Button>
-        </Box>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-        </Routes>
-      </Router>
-      
-  );
+        </Stack>
+      </Container>
+    </Block>
+  )
 }
 
-export default App; 
+export default function App() {
+  return (
+    <ThemeProvider theme={lesseUITheme}>
+      <AppContent />
+    </ThemeProvider>
+  )
+}
