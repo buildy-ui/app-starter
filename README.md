@@ -130,6 +130,13 @@ Three Cursor rules define how to use the system:
 | Bundle | Tree-shaken, no unused styles |
 | First Paint | < 1.5s |
 
+## Reference Links
+
+- [101 Guide](./docs/101-guide.md) — Complete introduction
+- [React Strict DOM](https://github.com/facebook/react-strict-dom) — RSD documentation
+- [shadcn/ui](https://ui.shadcn.com/) — Color token reference
+- [Tailwind CSS](https://tailwindcss.com/docs) — Class reference for TWSX
+
 ## 📄 License
 
 MIT License — see [LICENSE](LICENSE) for details.
