@@ -24,7 +24,7 @@ UI8Kit Core covers **80% of design needs** with just **13 components** and **12 
 | `Group` | Horizontal flex container | `gap`, `align`, `justify`, `wrap`, `grow` |
 | `Box` | Universal container with all variants | All spacing, color, layout, flex, border props |
 
-> **Note:** For CSS Grid layouts, use RSD with `twsx('grid grid-cols-3 gap-4')`
+> **Note:** For CSS Grid layouts, use Grid component with `cols="1-2-3"`
 
 ### Typography (2)
 | Component | Purpose | Key Props |

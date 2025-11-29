@@ -1,24 +1,33 @@
 /**
- * twsx - Tailwind to StyleX converter for React Strict DOM
+ * twsx - Tailwind to inline CSS style converter
  * 
- * Usage: twsx('min-h-screen flex flex-col gap-4')
- * Returns: StyleX-compatible style object
+ * Usage: twsx('flex flex-col gap-4 p-6')
+ * Returns: React CSSProperties object
  * 
- * Goal: Zero CSS files, styles injected inline via RSD
+ * Goal: Convert Tailwind-like class strings to inline styles
  * 
- * IMPORTANT: This utility does NOT use Tailwind JIT!
- * - Styles are converted to CSS objects at runtime
- * - StyleX/RSD injects styles directly into DOM
- * - No className generation, no CSS file output
- * - Bundle contains only used style objects (tree-shaking)
+ * Features:
+ * - Converts Tailwind classes to CSS properties at runtime
+ * - Caches results for performance
+ * - Returns React-compatible CSSProperties objects
+ * - No external dependencies
  * 
- * For Tailwind JIT (UI8Kit components):
- * - Use static className strings only
- * - Never use template literals for classes: `mt-${n}`
- * - CVA variants are statically analyzed
+ * LIMITATIONS:
+ * - NO responsive modifiers (md:, lg:, xl:) - use className for those
+ * - NO pseudo-classes (:hover, :focus) - use className for those
+ * - NO CSS animations/transitions - use className for those
+ * 
+ * When to use twsx:
+ * - Simple inline styles without responsive/pseudo behavior
+ * - Dynamic styles computed at runtime
+ * 
+ * When to use className (Tailwind JIT):
+ * - Responsive layouts (md:grid-cols-2)
+ * - Hover/focus states (:hover, :focus)
+ * - Animations and transitions
  */
 
-import { css } from 'react-strict-dom';
+import type { CSSProperties } from 'react';
 
 // =============================================================================
 // TAILWIND → CSS MAP
@@ -999,29 +1008,29 @@ const tw: Record<string, Record<string, string | number>> = {
 // STYLE CACHE
 // =============================================================================
 
-const styleCache = new Map<string, ReturnType<typeof css.create>>();
+const styleCache = new Map<string, CSSProperties>();
 
 // =============================================================================
 // TWSX FUNCTION
 // =============================================================================
 
 /**
- * Convert Tailwind class string to StyleX style object
+ * Convert Tailwind class string to React CSSProperties object
  * 
  * @param classes - Space-separated Tailwind classes (like native Tailwind)
- * @returns StyleX-compatible style object for RSD `style` prop
+ * @returns React CSSProperties object for inline styles
  * 
  * @example
  * // Basic usage
- * <html.div style={twsx('flex flex-col gap-4 p-6')} />
+ * <div style={twsx('flex flex-col gap-4 p-6')} />
  * 
- * // Conditional styles
- * <html.div style={[twsx('flex gap-4'), isActive && twsx('bg-primary')]} />
+ * // Conditional styles (use spread or Object.assign)
+ * <div style={{ ...twsx('flex gap-4'), ...(isActive && twsx('bg-primary')) }} />
  * 
  * // Multiple strings
- * <html.div style={twsx('min-h-screen', 'flex items-center justify-center')} />
+ * <div style={twsx('min-h-screen', 'flex items-center justify-center')} />
  */
-export function twsx(...classStrings: (string | undefined | null | false)[]): Record<string, string | number> {
+export function twsx(...classStrings: (string | undefined | null | false)[]): CSSProperties {
   // Filter and join all class strings
   const input = classStrings
     .filter((s): s is string => typeof s === 'string' && s.length > 0)
@@ -1033,12 +1042,12 @@ export function twsx(...classStrings: (string | undefined | null | false)[]): Re
   // Check cache
   const cached = styleCache.get(input);
   if (cached) {
-    return cached.root as Record<string, string | number>;
+    return cached;
   }
 
   // Parse classes
   const classes = input.split(/\s+/).filter(Boolean);
-  const merged: Record<string, string | number> = {};
+  const merged: CSSProperties = {};
 
   for (const cls of classes) {
     const styles = tw[cls];
@@ -1049,11 +1058,9 @@ export function twsx(...classStrings: (string | undefined | null | false)[]): Re
     }
   }
 
-  // Create StyleX styles and cache
-  const created = css.create({ root: merged });
-  styleCache.set(input, created);
+  styleCache.set(input, merged);
 
-  return created.root as Record<string, string | number>;
+  return merged;
 }
 
 /**
@@ -1066,20 +1073,36 @@ export function twsx(...classStrings: (string | undefined | null | false)[]): Re
  *   main: 'flex-1 p-6',
  * });
  * 
- * <html.div style={styles.container}>
- *   <html.header style={styles.header} />
- *   <html.main style={styles.main} />
- * </html.div>
+ * <div style={styles.container}>
+ *   <header style={styles.header} />
+ *   <main style={styles.main} />
+ * </div>
  */
 export function twsxCreate<T extends Record<string, string>>(
   definitions: T
-): { [K in keyof T]: Record<string, string | number> } {
-  const result = {} as { [K in keyof T]: Record<string, string | number> };
+): { [K in keyof T]: CSSProperties } {
+  const result = {} as { [K in keyof T]: CSSProperties };
   
   for (const key in definitions) {
     result[key] = twsx(definitions[key]);
   }
   
+  return result;
+}
+
+/**
+ * Merge multiple style objects into one
+ * 
+ * @example
+ * <div style={mergeStyles(styles.base, isActive && styles.active, customStyle)} />
+ */
+export function mergeStyles(...styles: (CSSProperties | undefined | null | false)[]): CSSProperties {
+  const result: CSSProperties = {};
+  for (const style of styles) {
+    if (style) {
+      Object.assign(result, style);
+    }
+  }
   return result;
 }
 

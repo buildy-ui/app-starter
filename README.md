@@ -1,15 +1,15 @@
 # UI8Kit — Ultra-Fast UI System
 
-A minimal, high-performance UI system combining **React Strict DOM**, **Tailwind-style utilities**, and **shadcn color tokens**.
+A minimal, high-performance UI system combining **Tailwind JIT**, **inline styles**, and **shadcn color tokens**.
 
 ## 🎯 Philosophy
 
 **Zero overhead, maximum speed.**
 
-- **< 2KB runtime** with React Strict DOM
-- **No CSS files** — styles injected inline via StyleX
+- **Zero unused CSS** with Tailwind JIT
+- **Inline styles** for simple cases via TWSX
 - **13 components** cover 80% of UI needs
-- **Tailwind syntax** without Tailwind overhead
+- **Responsive design** out of the box
 
 ## 🏗️ Architecture
 
@@ -17,14 +17,14 @@ A minimal, high-performance UI system combining **React Strict DOM**, **Tailwind
 ┌─────────────────────────────────────────────────────────────┐
 │                      Your Application                        │
 ├─────────────────────────────────────────────────────────────┤
-│  UI8Kit Components    │  RSD Layouts + TWSX                 │
-│  (Button, Card, etc.) │  (html.div, twsx('flex gap-4'))     │
+│  UI8Kit Components    │  Tailwind JIT + TWSX                │
+│  (Button, Card, etc.) │  (className, style={twsx(...)})     │
 ├───────────────────────┴─────────────────────────────────────┤
 │                    shadcn Color Tokens                       │
 │     (--primary, --background, --foreground, etc.)           │
 ├─────────────────────────────────────────────────────────────┤
-│                   React Strict DOM (RSD)                     │
-│              (< 2KB, atomic CSS, cross-platform)            │
+│                    Tailwind JIT                              │
+│           (Zero unused CSS, responsive design)              │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -43,17 +43,20 @@ import { Button, Stack, Title, Text } from '@ui8kit/ui'
 </Stack>
 ```
 
-### 2. RSD + TWSX — Custom Layouts
-React Strict DOM elements with Tailwind-style utilities.
+### 2. Tailwind JIT + TWSX — Custom Layouts
+Tailwind JIT for responsive layouts, TWSX for simple inline styles.
 
 ```tsx
-import { html } from 'react-strict-dom'
 import { twsx } from '@/lib/twsx'
 
-<html.div style={twsx('min-h-screen flex flex-col')}>
-  <html.header style={twsx('w-full py-4 px-6 bg-background')} />
-  <html.main style={twsx('flex-1 p-6 max-w-7xl mx-auto')} />
-</html.div>
+// For responsive layouts - use className
+<div className="min-h-screen flex flex-col md:grid-cols-2">
+  <header className="w-full py-4 px-6 bg-background" />
+  <main style={twsx('flex-1 p-6 max-w-7xl mx-auto')} />
+</div>
+
+// For simple styles - use twsx
+<div style={twsx('p-4 m-2 bg-primary')} />
 ```
 
 ### 3. shadcn Colors — Design Tokens
@@ -94,8 +97,8 @@ apps/web/src/
 ├── lib/
 │   ├── twsx.ts        # Tailwind → StyleX converter
 │   └── utils.ts       # Utilities (cn, etc.)
-├── layouts/           # RSD page layouts
-└── blocks/            # RSD composite blocks
+├── layouts/           # Tailwind JIT page layouts
+└── blocks/            # Tailwind JIT composite blocks
 ```
 
 ## 🎨 When to Use What
@@ -103,9 +106,10 @@ apps/web/src/
 | Need | Use | Example |
 |------|-----|---------|
 | Button, Badge, Card | UI8Kit | `<Button variant="primary">` |
-| Page layout | RSD + TWSX | `twsx('min-h-screen flex')` |
-| Grid system | RSD + TWSX | `twsx('grid grid-cols-3 gap-4')` |
-| Custom block | RSD + TWSX | `<html.section style={...}>` |
+| Page layout | Tailwind JIT | `className="min-h-screen flex"` |
+| Responsive grid | Grid component | `<Grid cols="1-2-3">` |
+| Simple styles | TWSX | `style={twsx('p-4 m-2')}` |
+| Custom block | Tailwind JIT | `<section className="py-8">` |
 | Colors | shadcn tokens | `bg-primary`, `text-foreground` |
 
 ## 📚 Documentation
@@ -117,18 +121,18 @@ apps/web/src/
 
 Three Cursor rules define how to use the system:
 
-1. **`.cursor/rules/react-strict-dom.mdc`** — RSD elements and css.create()
-2. **`.cursor/rules/twsx.mdc`** — Tailwind syntax for RSD
+1. **`.cursor/rules/tailwind-jit.mdc`** — Tailwind JIT for layouts
+2. **`.cursor/rules/twsx.mdc`** — Inline styles utility
 3. **`.cursor/rules/ui8kit.mdc`** — Component library usage
 
 ## ⚡ Performance
 
 | Metric | Target |
 |--------|--------|
-| RSD Runtime | < 2KB gzipped |
-| CSS Output | Atomic classes only |
-| Bundle | Tree-shaken, no unused styles |
-| First Paint | < 1.5s |
+| Tailwind JIT | Zero unused CSS |
+| Bundle Size | Only used styles |
+| Performance | Fast compilation |
+| First Paint | < 1s |
 
 ## 📄 License
 
@@ -136,4 +140,4 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 ---
 
-Built for speed. Designed for clarity. Zero overhead.
+Built for speed. Designed for clarity. Tailwind JIT + inline styles.

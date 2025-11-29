@@ -1,6 +1,6 @@
 # UI8Kit 101 Guide
 
-A complete introduction to building ultra-fast UIs with React Strict DOM, TWSX, shadcn colors, and UI8Kit components.
+A complete introduction to building ultra-fast UIs with Tailwind JIT, inline styles, shadcn colors, and UI8Kit components.
 
 ---
 
@@ -8,8 +8,8 @@ A complete introduction to building ultra-fast UIs with React Strict DOM, TWSX, 
 
 1. [The Problem We Solve](#the-problem-we-solve)
 2. [Architecture Overview](#architecture-overview)
-3. [Layer 1: React Strict DOM (RSD)](#layer-1-react-strict-dom-rsd)
-4. [Layer 2: TWSX — Tailwind for RSD](#layer-2-twsx--tailwind-for-rsd)
+3. [Layer 1: Tailwind JIT](#layer-1-tailwind-jit)
+4. [Layer 2: TWSX — Inline Styles](#layer-2-twsx--inline-styles)
 5. [Layer 3: shadcn Color Tokens](#layer-3-shadcn-color-tokens)
 6. [Layer 4: UI8Kit Components](#layer-4-ui8kit-components)
 7. [Putting It All Together](#putting-it-all-together)
@@ -25,10 +25,10 @@ Traditional React UI development has several issues:
 
 | Problem | Traditional | Our Solution |
 |---------|-------------|--------------|
-| Large bundles | CSS-in-JS runtime overhead | RSD < 2KB runtime |
-| Style conflicts | Global CSS, specificity wars | Atomic CSS, scoped styles |
+| Large bundles | CSS-in-JS runtime overhead | Tailwind JIT + inline styles |
+| Style conflicts | Global CSS, specificity wars | Atomic classes, scoped styles |
 | Inconsistent APIs | Different patterns per library | Unified component props |
-| Cognitive load | Learn multiple systems | Three simple layers |
+| Cognitive load | Learn multiple systems | Two simple approaches |
 
 **Our goal:** Build UIs with **zero overhead** and **maximum clarity**.
 
@@ -41,12 +41,12 @@ Traditional React UI development has several issues:
 │                        APPLICATION                              │
 │                                                                 │
 │   ┌─────────────────┐    ┌──────────────────────────────────┐  │
-│   │   UI8Kit        │    │   RSD + TWSX                     │  │
+│   │   UI8Kit        │    │   Tailwind JIT + TWSX           │  │
 │   │   Components    │    │   Custom Layouts                 │  │
 │   │                 │    │                                  │  │
-│   │   <Button>      │    │   <html.div style={twsx(...)}>   │  │
-│   │   <Card>        │    │   <html.section>                 │  │
-│   │   <Stack>       │    │   <html.header>                  │  │
+│   │   <Button>      │    │   <div className="grid-cols-3">   │  │
+│   │   <Card>        │    │   <div style={twsx('p-4')}>      │  │
+│   │   <Grid>        │    │   <Grid cols="1-2-3">            │  │
 │   └────────┬────────┘    └─────────────┬────────────────────┘  │
 │            │                           │                        │
 │            └───────────┬───────────────┘                        │
@@ -55,60 +55,52 @@ Traditional React UI development has several issues:
 │   │              shadcn Color Tokens                        │   │
 │   │   --primary, --secondary, --background, --foreground   │   │
 │   └────────────────────────────────────────────────────────┘   │
-│                        │                                        │
-│                        ▼                                        │
-│   ┌────────────────────────────────────────────────────────┐   │
-│   │              React Strict DOM                           │   │
-│   │   html.* elements, css.create(), atomic CSS output     │   │
-│   └────────────────────────────────────────────────────────┘   │
 └────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Layer 1: React Strict DOM (RSD)
+## Layer 1: Tailwind JIT
 
-React Strict DOM is the foundation. It provides:
+Tailwind CSS with Just-In-Time compilation is the foundation. It provides:
 
-- **< 2KB runtime** on web
-- **Atomic CSS output** (no duplicate styles)
-- **Cross-platform** (web + React Native)
-- **Type-safe** elements and styles
+- **Zero unused CSS** — only generate what's used
+- **Responsive design** — md:, lg:, xl: modifiers
+- **Consistent spacing** — predefined scale
+- **Atomic classes** — no conflicts
 
 ### Basic Usage
 
 ```tsx
-import { html, css } from 'react-strict-dom';
-
-// Define styles at module level
-const styles = css.create({
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    padding: 16,
-    gap: 8
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold'
-  }
-});
-
-// Use html.* elements with style prop
+// Use className for responsive layouts
 function MyComponent() {
   return (
-    <html.div style={styles.container}>
-      <html.h1 style={styles.title}>Hello</html.h1>
-    </html.div>
+    <div className="min-h-screen flex flex-col">
+      <header className="w-full py-4 px-6 border-b border-border">
+        Header
+      </header>
+      <main className="flex-1 p-6 max-w-7xl mx-auto">
+        Content
+      </main>
+    </div>
   );
 }
 ```
 
+### Responsive Design
+
+```tsx
+// Mobile-first responsive classes
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  {/* Responsive grid: 1 col mobile, 2 tablet, 3 desktop */}
+</div>
+```
+
 ### Key Rules
 
-1. **Only `html.*` elements** — never `<div>`, always `<html.div>`
-2. **Only `css.create()` for styles** — never inline `style={{ }}`
-3. **No className** — RSD doesn't use class names
+1. **Use `className`** — for all responsive and pseudo-state styles
+2. **Static strings only** — never template literals like `mt-${n}`
+3. **Tailwind classes** — follow standard Tailwind naming conventions
 
 ### Pseudo-states
 
@@ -140,27 +132,19 @@ const styles = css.create({
 
 ---
 
-## Layer 2: TWSX — Tailwind for RSD
+## Layer 2: TWSX — Inline Styles
 
-Writing `css.create()` objects is verbose. TWSX lets you use Tailwind-style class names:
+For simple inline styles without responsive behavior, use TWSX to convert Tailwind classes to CSS properties:
 
 ```tsx
 import { html } from 'react-strict-dom';
 import { twsx } from '@/lib/twsx';
 
 // Instead of this:
-const styles = css.create({
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 16,
-    padding: 24
-  }
-});
-<html.div style={styles.container} />
+<div style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: 24 }} />
 
 // Write this:
-<html.div style={twsx('flex flex-col gap-4 p-6')} />
+<div style={twsx('flex flex-col gap-4 p-6')} />
 ```
 
 ### How It Works
@@ -168,14 +152,12 @@ const styles = css.create({
 1. **Parse** — Split class string into individual classes
 2. **Map** — Convert each class to CSS properties
 3. **Cache** — Store result for reuse
-4. **Return** — StyleX-compatible object
+4. **Return** — React CSSProperties object
 
 ```
 twsx('flex gap-4')
     ↓
 { display: 'flex', gap: 16 }
-    ↓
-css.create({ root: { display: 'flex', gap: 16 } })
     ↓
 Cached and returned
 ```
@@ -196,11 +178,11 @@ const styles = twsxCreate({
 // Use in component
 function PageLayout({ children }) {
   return (
-    <html.div style={styles.container}>
-      <html.header style={styles.header}>Header</html.header>
-      <html.main style={styles.main}>{children}</html.main>
-      <html.footer style={styles.footer}>Footer</html.footer>
-    </html.div>
+    <div style={styles.container}>
+      <header style={styles.header}>Header</header>
+      <main style={styles.main}>{children}</main>
+      <footer style={styles.footer}>Footer</footer>
+    </div>
   );
 }
 ```
@@ -208,26 +190,34 @@ function PageLayout({ children }) {
 ### Conditional Styles
 
 ```tsx
-<html.button 
-  style={[
-    twsx('px-4 py-2 rounded-lg font-medium'),
-    isActive && twsx('bg-primary text-primary-foreground'),
-    !isActive && twsx('bg-secondary text-secondary-foreground')
-  ]}
+<button
+  style={{
+    ...twsx('px-4 py-2 rounded-lg font-medium'),
+    ...(isActive
+      ? twsx('bg-primary text-primary-foreground')
+      : twsx('bg-secondary text-secondary-foreground')
+    )
+  }}
 />
 ```
 
-### Available Classes
+### Limitations
 
-TWSX supports 900+ Tailwind classes:
+**TWSX does NOT support:**
+- **Responsive modifiers:** `md:`, `lg:`, `xl:` → use `className`
+- **Pseudo-classes:** `:hover`, `:focus`, `:active` → use `className`
+- **Animations:** `transition-*`, `animate-*` → use `className`
 
-- **Layout:** `flex`, `grid`, `block`, `hidden`
-- **Flexbox:** `flex-col`, `items-center`, `justify-between`, `gap-4`
-- **Spacing:** `p-4`, `px-6`, `m-auto`, `mt-8`
-- **Sizing:** `w-full`, `h-screen`, `max-w-7xl`
-- **Typography:** `text-xl`, `font-bold`, `text-center`
-- **Colors:** `bg-primary`, `text-foreground`, `border-border`
-- **Effects:** `shadow-md`, `rounded-lg`, `opacity-50`
+**Use TWSX for:**
+- Simple inline styles without responsive behavior
+- Dynamic styles computed at runtime
+- Colors, spacing, typography basics
+
+**Use className for:**
+- Responsive layouts (`md:grid-cols-2`)
+- Hover/focus states (`hover:bg-primary`)
+- Animations and transitions
+- Complex styling logic
 
 ---
 
@@ -388,23 +378,20 @@ import { Card } from '@ui8kit/ui'
 ### Example: Landing Page
 
 ```tsx
-import { html } from 'react-strict-dom';
-import { twsx, twsxCreate } from '@/lib/twsx';
-import { Container, Stack, Title, Text, Button } from '@ui8kit/ui';
+import { twsx } from '@/lib/twsx';
+import { Container, Stack, Title, Text, Button, Grid } from '@ui8kit/ui';
 
-// RSD layout styles
-const layout = twsxCreate({
-  page: 'min-h-screen flex flex-col bg-background',
-  hero: 'py-24 px-6',
-  features: 'py-16 px-6 bg-muted',
-  grid: 'grid grid-cols-1 md:grid-cols-3 gap-8',
-});
+// Simple inline styles (no responsive)
+const styles = {
+  hero: twsx('py-24 px-6'),
+  features: twsx('py-16 px-6 bg-muted'),
+};
 
 function LandingPage() {
   return (
-    <html.div style={layout.page}>
+    <div className="min-h-screen flex flex-col bg-background">
       {/* Hero Section — UI8Kit components */}
-      <html.section style={layout.hero}>
+      <section style={styles.hero}>
         <Container ta="center">
           <Stack gap="lg" align="center">
             <Title size="5xl">Build Faster</Title>
@@ -416,19 +403,19 @@ function LandingPage() {
             </Button>
           </Stack>
         </Container>
-      </html.section>
+      </section>
 
-      {/* Features Section — RSD + TWSX grid */}
-      <html.section style={layout.features}>
+      {/* Features Section — Tailwind JIT Grid */}
+      <section style={styles.features}>
         <Container>
-          <html.div style={layout.grid}>
-            <FeatureCard title="Fast" description="< 2KB runtime" />
-            <FeatureCard title="Simple" description="13 components" />
-            <FeatureCard title="Flexible" description="Tailwind syntax" />
-          </html.div>
+          <Grid cols="1-2-3" gap="lg">
+            <FeatureCard title="Fast" description="Tailwind JIT" />
+            <FeatureCard title="Simple" description="Inline styles" />
+            <FeatureCard title="Flexible" description="UI8Kit components" />
+          </Grid>
         </Container>
-      </html.section>
-    </html.div>
+      </section>
+    </div>
   );
 }
 ```
@@ -443,14 +430,14 @@ Need to build UI?
 ├─ Is it a common element (button, card, badge)?
 │  └─ YES → Use UI8Kit component
 │
-├─ Is it a page layout or custom section?
-│  └─ YES → Use RSD + TWSX
+├─ Need responsive layout (md:, lg:, xl:)?
+│  └─ YES → Use className + Tailwind JIT
 │
-├─ Need CSS Grid?
-│  └─ YES → Use twsx('grid grid-cols-3 gap-4')
+├─ Need hover/focus states or animations?
+│  └─ YES → Use className + Tailwind JIT
 │
-├─ Need custom styling?
-│  └─ YES → Use css.create() directly
+├─ Need simple inline styles?
+│  └─ YES → Use twsx() for inline styles
 │
 └─ Need a color?
    └─ Always use shadcn tokens (bg-primary, text-foreground)
@@ -463,24 +450,18 @@ Need to build UI?
 ### Page Layout
 
 ```tsx
-const layout = twsxCreate({
-  page: 'min-h-screen flex flex-col',
-  header: 'w-full py-4 px-6 bg-background border-b border-border',
-  main: 'flex-1',
-  footer: 'w-full py-4 px-6 bg-muted',
-});
-
+// Use className for responsive layouts
 function PageLayout({ children }) {
   return (
-    <html.div style={layout.page}>
-      <html.header style={layout.header}>
+    <div className="min-h-screen flex flex-col">
+      <header className="w-full py-4 px-6 bg-background border-b border-border">
         <Container>Header content</Container>
-      </html.header>
-      <html.main style={layout.main}>{children}</html.main>
-      <html.footer style={layout.footer}>
+      </header>
+      <main className="flex-1">{children}</main>
+      <footer className="w-full py-4 px-6 bg-muted">
         <Container>Footer content</Container>
-      </html.footer>
-    </html.div>
+      </footer>
+    </div>
   );
 }
 ```
@@ -488,22 +469,27 @@ function PageLayout({ children }) {
 ### Responsive Grid
 
 ```tsx
-// 1 column mobile, 2 tablet, 3 desktop
-<html.div style={twsx('grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6')}>
+// Use Grid component for responsive layouts
+<Grid cols="1-2-3" gap="lg">
   {items.map(item => <Card key={item.id} {...item} />)}
-</html.div>
+</Grid>
+
+// Or use className directly
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  {items.map(item => <Card key={item.id} {...item} />)}
+</div>
 ```
 
 ### Centered Content
 
 ```tsx
-<html.div style={twsx('min-h-screen flex items-center justify-center')}>
+<div style={twsx('min-h-screen flex items-center justify-center')}>
   <Container ta="center">
     <Stack gap="lg" align="center">
       {/* content */}
     </Stack>
   </Container>
-</html.div>
+</div>
 ```
 
 ---

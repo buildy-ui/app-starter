@@ -8,8 +8,8 @@ Instructions for AI coding agents working with this codebase.
 
 This is a **UI8Kit** project — an ultra-fast UI system built on:
 
-- **React Strict DOM (RSD)** — < 2KB runtime, cross-platform
-- **TWSX** — Tailwind syntax for RSD/StyleX
+- **Tailwind JIT** — Zero unused CSS, responsive design
+- **TWSX** — Inline styles for simple cases
 - **shadcn color tokens** — Semantic design tokens
 - **UI8Kit components** — 13 stateless UI components
 
@@ -19,49 +19,48 @@ This project uses three Cursor rules in `.cursor/rules/`:
 
 | Rule | File | When Applied |
 |------|------|--------------|
-| **React Strict DOM** | `react-strict-dom.mdc` | Always |
-| **TWSX** | `twsx.mdc` | When creating layouts/blocks |
-| **UI8Kit** | `ui8kit.mdc` | When using UI components |
+| **Tailwind JIT** | `tailwind-jit.mdc` | Responsive layouts, states |
+| **TWSX** | `twsx.mdc` | Simple inline styles |
+| **UI8Kit** | `ui8kit.mdc` | UI components |
 
 ---
 
 ## Quick Reference
 
-### 1. Elements — Always Use RSD
+### 1. Layouts — Use Tailwind JIT
 
 ```tsx
-// ❌ NEVER
-<div><span>Text</span></div>
+// ✅ Use className for responsive layouts
+<div className="min-h-screen flex flex-col md:grid-cols-2">
+  <header>Header</header>
+  <main>Main content</main>
+</div>
 
-// ✅ ALWAYS
-import { html } from 'react-strict-dom';
-<html.div><html.span>Text</html.span></html.div>
+// ✅ Use Grid component for responsive grids
+<Grid cols="1-2-3" gap="lg" />
 ```
 
-### 2. Styles — Use TWSX or css.create()
+### 2. Styles — className or twsx()
 
 ```tsx
-// ❌ NEVER
-<html.div className="flex gap-4" />
-<html.div style={{ padding: 16 }} />
+// ✅ For responsive/hover states - use className
+<div className="hover:bg-primary transition-colors md:grid-cols-2" />
 
-// ✅ ALWAYS
+// ✅ For simple inline styles - use twsx
 import { twsx } from '@/lib/twsx';
-<html.div style={twsx('flex gap-4')} />
+<div style={twsx('p-4 m-2 bg-primary')} />
 
-// OR with css.create()
-import { css } from 'react-strict-dom';
-const styles = css.create({ container: { padding: 16 } });
-<html.div style={styles.container} />
+// ❌ Don't mix className and style for same properties
+<div className="p-4" style={twsx('m-2')} />
 ```
 
 ### 3. Components — Use UI8Kit
 
 ```tsx
-// ❌ NEVER create custom buttons/cards
-<html.button style={twsx('px-4 py-2 bg-primary')}>Click</html.button>
+// ❌ Don't create custom buttons/cards
+<button className="px-4 py-2 bg-primary">Click</button>
 
-// ✅ ALWAYS use UI8Kit
+// ✅ Use UI8Kit components
 import { Button } from '@ui8kit/ui';
 <Button variant="primary">Click</Button>
 ```
@@ -69,13 +68,13 @@ import { Button } from '@ui8kit/ui';
 ### 4. Colors — Use shadcn Tokens
 
 ```tsx
-// ❌ NEVER hardcode colors
-twsx('bg-blue-500')
-twsx('text-gray-900')
+// ❌ Don't hardcode colors
+<div className="bg-blue-500 text-gray-900" />
+<div style={twsx('bg-blue-500 text-gray-900')} />
 
-// ✅ ALWAYS use tokens
-twsx('bg-primary')
-twsx('text-foreground')
+// ✅ Use semantic tokens
+<div className="bg-primary text-foreground" />
+<div style={twsx('bg-primary text-foreground')} />
 ```
 
 ---
@@ -83,14 +82,14 @@ twsx('text-foreground')
 ## File Structure
 
 ```
-apps/web/src/
+src/
 ├── components/ui/     # UI8Kit components (DO NOT MODIFY unless asked)
 ├── variants/          # CVA variants (DO NOT MODIFY unless asked)
 ├── lib/
 │   ├── twsx.ts        # TWSX utility (DO NOT MODIFY unless asked)
 │   └── utils.ts       # Utilities
-├── layouts/           # Page layouts (CREATE with RSD + TWSX)
-└── blocks/            # Composite blocks (CREATE with RSD + TWSX)
+├── layouts/           # Page layouts (CREATE with Tailwind JIT)
+└── blocks/            # Composite blocks (CREATE with Tailwind JIT)
 ```
 
 ---
@@ -101,30 +100,21 @@ apps/web/src/
 
 ```tsx
 // src/layouts/PageLayout.tsx
-import { html } from 'react-strict-dom';
-import { twsxCreate } from '@/lib/twsx';
 import { Container } from '@ui8kit/ui';
-
-const styles = twsxCreate({
-  page: 'min-h-screen flex flex-col bg-background',
-  header: 'w-full py-4 px-6 border-b border-border',
-  main: 'flex-1 py-8',
-  footer: 'w-full py-4 px-6 bg-muted mt-auto',
-});
 
 export function PageLayout({ children }) {
   return (
-    <html.div style={styles.page}>
-      <html.header style={styles.header}>
+    <div className="min-h-screen flex flex-col bg-background">
+      <header className="w-full py-4 px-6 border-b border-border">
         <Container>Header</Container>
-      </html.header>
-      <html.main style={styles.main}>
+      </header>
+      <main className="flex-1 py-8">
         <Container>{children}</Container>
-      </html.main>
-      <html.footer style={styles.footer}>
+      </main>
+      <footer className="w-full py-4 px-6 bg-muted mt-auto">
         <Container>Footer</Container>
-      </html.footer>
-    </html.div>
+      </footer>
+    </div>
   );
 }
 ```
@@ -133,17 +123,16 @@ export function PageLayout({ children }) {
 
 ```tsx
 // src/blocks/HeroBlock.tsx
-import { html } from 'react-strict-dom';
-import { twsxCreate } from '@/lib/twsx';
+import { twsx } from '@/lib/twsx';
 import { Container, Stack, Title, Text, Button } from '@ui8kit/ui';
 
-const styles = twsxCreate({
-  hero: 'py-24 px-6',
-});
+const styles = {
+  hero: twsx('py-24 px-6'),
+};
 
 export function HeroBlock({ title, subtitle, ctaText, onCtaClick }) {
   return (
-    <html.section style={styles.hero}>
+    <section style={styles.hero}>
       <Container ta="center">
         <Stack gap="lg" align="center">
           <Title size="5xl">{title}</Title>
@@ -153,7 +142,7 @@ export function HeroBlock({ title, subtitle, ctaText, onCtaClick }) {
           </Button>
         </Stack>
       </Container>
-    </html.section>
+    </section>
   );
 }
 ```
@@ -161,17 +150,21 @@ export function HeroBlock({ title, subtitle, ctaText, onCtaClick }) {
 ### Creating a Grid Layout
 
 ```tsx
-// Use TWSX for CSS Grid (not available in UI8Kit)
-import { html } from 'react-strict-dom';
-import { twsx } from '@/lib/twsx';
+// Use Grid component for responsive layouts
+import { Grid } from '@ui8kit/ui';
 
-<html.div style={twsx('grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6')}>
+<Grid cols="1-2-3" gap="lg">
   {items.map(item => (
     <Card key={item.id}>
       <Card.Content>{item.content}</Card.Content>
     </Card>
   ))}
-</html.div>
+</Grid>
+
+// Or use className directly
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  {items.map(item => <Card key={item.id} />)}
+</div>
 ```
 
 ---
@@ -181,9 +174,12 @@ import { twsx } from '@/lib/twsx';
 | Task | Solution |
 |------|----------|
 | Button, Badge, Card | `import { X } from '@ui8kit/ui'` |
-| Page layout | RSD + `twsxCreate()` |
-| CSS Grid | `twsx('grid grid-cols-3 gap-4')` |
-| Section wrapper | `<html.section style={...}>` |
+| Page layout | `className="min-h-screen flex"` |
+| Responsive grid | `<Grid cols="1-2-3">` or `className="grid-cols-1 md:grid-cols-2"` |
+| Hover/focus states | `className="hover:bg-primary focus:ring-2"` |
+| Animations | `className="transition-all duration-300"` |
+| Simple inline styles | `style={twsx('p-4 m-2')}` |
+| Section wrapper | `<section className="py-8">` |
 | Semantic heading | `<Title order={1} size="4xl">` |
 | Paragraph text | `<Text size="lg">` |
 | Vertical stack | `<Stack gap="lg">` |
@@ -194,45 +190,58 @@ import { twsx } from '@/lib/twsx';
 
 ## What NOT to Do
 
-### ❌ Don't Use className
+### ❌ Don't Mix Approaches
 
 ```tsx
-// WRONG
-<html.div className="flex gap-4" />
-<Button className="mt-4" />
+// WRONG - mixing className and style for same properties
+<div className="p-4" style={twsx('m-2')} />
+
+// WRONG - twsx with responsive modifiers
+<div style={twsx('md:grid-cols-2')} /> // Won't work!
 ```
 
-### ❌ Don't Use Inline Styles
+### ❌ Don't Use Dynamic Class Strings
 
 ```tsx
-// WRONG
-<html.div style={{ padding: 16 }} />
+// WRONG - JIT can't analyze dynamic strings
+<div className={`grid grid-cols-${cols}`} />
+
+// RIGHT - use static strings or twsx for dynamic values
+<div className="grid" style={twsx(`grid-cols-${cols}`)} />
 ```
 
 ### ❌ Don't Hardcode Colors
 
 ```tsx
 // WRONG
-twsx('bg-blue-500 text-white')
+<div className="bg-blue-500 text-gray-900" />
+<div style={twsx('bg-blue-500 text-gray-900')} />
+
+// RIGHT
+<div className="bg-primary text-foreground" />
+<div style={twsx('bg-primary text-foreground')} />
 ```
 
-### ❌ Don't Create Custom Buttons/Cards
+### ❌ Don't Create Custom Components
 
 ```tsx
 // WRONG — use UI8Kit instead
-<html.button style={twsx('px-4 py-2 rounded bg-primary')}>
+<button className="px-4 py-2 bg-primary rounded">Click</button>
+
+// RIGHT
+import { Button } from '@ui8kit/ui';
+<Button variant="primary">Click</Button>
 ```
 
-### ❌ Don't Use Standard React Elements
+### ❌ Don't Use TWSX for Interactive Styles
 
 ```tsx
-// WRONG
-<div><span>Text</span></div>
+// WRONG — use className for hover/focus/animations
+<div style={twsx('hover:bg-primary transition-colors')} />
+
+// RIGHT
+<div className="hover:bg-primary transition-colors" />
 ```
-
-### ❌ Don't Add State to UI8Kit Components
-
-UI8Kit components are stateless. State belongs in parent components or layouts.
 
 ---
 
@@ -253,11 +262,12 @@ bun run typecheck
 
 ## Performance Checklist
 
-- [ ] Styles defined at module level with `twsxCreate()`
-- [ ] No dynamic class strings (`` `mt-${n}` ``)
+- [ ] Use `className` for responsive layouts and states
+- [ ] Use `twsx()` for simple inline styles only
+- [ ] No dynamic class strings (`` `grid-cols-${n}` ``)
 - [ ] Using UI8Kit for common elements
 - [ ] Colors from shadcn tokens only
-- [ ] No `className` or inline `style={{ }}`
+- [ ] No mixed styling approaches
 
 ---
 

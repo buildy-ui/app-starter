@@ -1,68 +1,69 @@
 ---
-description: При создании макетов и блоков с использованием React Strict DOM и Tailwind-синтаксиса
+description: При использовании inline styles с TWSX утилитой
 alwaysApply: false
 ---
 
-# TWSX — Tailwind Syntax for React Strict DOM
+# TWSX — Inline Styles Utility
 
-**Goal:** Write Tailwind-like classes, get StyleX performance. Zero CSS files.
+**Goal:** Convert Tailwind classes to React CSSProperties for inline styles.
+
+**IMPORTANT:** TWSX does NOT support responsive modifiers (md:, lg:, xl:), pseudo-classes (:hover, :focus), or animations. Use `className` for those.
 
 ---
 
 ## Core Concept
 
 ```tsx
-// ❌ Standard Tailwind (not RSD compatible)
-<div className="flex flex-col gap-4 p-6" />
+// ✅ Use className for responsive layouts
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" />
 
-// ✅ TWSX for RSD
-import { html } from 'react-strict-dom';
+// ✅ Use twsx() for simple inline styles
 import { twsx } from '@/lib/twsx';
-
-<html.div style={twsx('flex flex-col gap-4 p-6')} />
+<div style={twsx('p-4 m-2 bg-primary')} />
 ```
 
 ---
 
 ## Usage Patterns
 
-### Basic
+### Basic Inline Styles
 ```tsx
-<html.div style={twsx('min-h-screen flex flex-col')}>
-  <html.header style={twsx('w-full py-4 px-6 bg-background')} />
-  <html.main style={twsx('flex-1 p-6')} />
-</html.div>
-```
+import { twsx } from '@/lib/twsx';
 
-### Conditional Styles
-```tsx
-<html.button 
-  style={[
-    twsx('px-4 py-2 rounded-lg font-medium'),
-    isActive && twsx('bg-primary text-primary-foreground'),
-    !isActive && twsx('bg-secondary text-secondary-foreground')
-  ]}
-/>
-```
-
-### Reusable Styles (Module Level)
-```tsx
-import { twsxCreate } from '@/lib/twsx';
-
-const styles = twsxCreate({
-  container: 'min-h-screen flex flex-col',
-  header: 'w-full py-4 px-6 bg-background border-b border-border',
-  main: 'flex-1 p-6 max-w-7xl mx-auto w-full',
-  footer: 'w-full py-4 px-6 bg-muted mt-auto',
-});
-
-function PageLayout({ children }) {
+function MyComponent() {
   return (
-    <html.div style={styles.container}>
-      <html.header style={styles.header} />
-      <html.main style={styles.main}>{children}</html.main>
-      <html.footer style={styles.footer} />
-    </html.div>
+    <div style={twsx('p-4 m-2 bg-primary text-primary-foreground')}>
+      Content
+    </div>
+  );
+}
+```
+
+### Conditional Styles (with spread)
+```tsx
+<div style={{
+  ...twsx('p-4 rounded-lg'),
+  ...(isActive ? twsx('bg-primary') : twsx('bg-secondary'))
+}}>
+  Content
+</div>
+```
+
+### Module-Level Styles
+```tsx
+import { twsx } from '@/lib/twsx';
+
+const styles = {
+  card: twsx('p-6 rounded-lg shadow-sm bg-card'),
+  title: twsx('text-xl font-semibold text-foreground')
+};
+
+function Card({ title, children }) {
+  return (
+    <div style={styles.card}>
+      <h2 style={styles.title}>{title}</h2>
+      {children}
+    </div>
   );
 }
 ```
@@ -70,6 +71,16 @@ function PageLayout({ children }) {
 ---
 
 ## Available Classes
+
+TWSX supports most Tailwind utility classes EXCEPT:
+
+**❌ NOT SUPPORTED:**
+- Responsive modifiers: `md:`, `lg:`, `xl:`, `sm:`
+- Pseudo-classes: `:hover`, `:focus`, `:active`
+- Animations: `transition-*`, `duration-*`, `animate-*`
+- Grid classes: `grid-cols-*`, `col-span-*` (use Grid component instead)
+
+**✅ SUPPORTED:**
 
 ### Layout
 | Category | Classes |
@@ -141,14 +152,12 @@ function PageLayout({ children }) {
 | Pointer Events | `pointer-events-none`, `pointer-events-auto` |
 | User Select | `select-none`, `select-text`, `select-all` |
 
-### Grid (web only)
 | Category | Classes |
 |----------|---------|
 | Columns | `grid-cols-1` → `grid-cols-12`, `grid-cols-none` |
 | Rows | `grid-rows-1` → `grid-rows-6` |
 | Span | `col-span-1` → `col-span-6`, `col-span-full`, `row-span-*` |
 
-### Transitions (web only)
 | Category | Classes |
 |----------|---------|
 | Property | `transition`, `transition-all`, `transition-colors`, `transition-opacity`, `transition-transform` |
@@ -192,13 +201,13 @@ function Card() {
 }
 ```
 
-### 2. Compose with Arrays
+### 2. Compose with Object Spread
 ```tsx
-<html.div style={[
-  styles.base,
-  variant === 'primary' && styles.primary,
-  disabled && twsx('opacity-50 pointer-events-none')
-]} />
+<div style={{
+  ...styles.base,
+  ...(variant === 'primary' && styles.primary),
+  ...(disabled && twsx('opacity-50 pointer-events-none'))
+}} />
 ```
 
 ### 3. Keep Classes Minimal
@@ -227,11 +236,11 @@ twsx('bg-white text-black border-gray-200')
 src/
 ├── lib/
 │   └── twsx.ts          # TWSX utility
-├── layouts/             # Page layouts (RSD + twsx)
+├── layouts/             # Page layouts (Tailwind JIT + twsx)
 │   ├── PageLayout.tsx
 │   ├── ArticleLayout.tsx
 │   └── DashboardLayout.tsx
-└── blocks/              # Composite blocks (RSD + twsx)
+└── blocks/              # Composite blocks (Tailwind JIT + twsx)
     ├── HeroBlock.tsx
     ├── CardBlock.tsx
     └── NavigationBlock.tsx
@@ -242,6 +251,6 @@ src/
 ## Performance
 
 - **Cached:** Styles are cached after first parse
-- **Atomic:** StyleX generates atomic CSS classes
-- **Zero runtime:** No CSS-in-JS overhead after build
-- **Tree-shakeable:** Unused classes are eliminated
+- **Lightweight:** Returns plain CSSProperties objects
+- **Zero dependencies:** No external CSS-in-JS libraries
+- **Fast:** Simple class-to-style mapping

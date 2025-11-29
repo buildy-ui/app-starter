@@ -1,0 +1,210 @@
+---
+description: При использовании Tailwind JIT для responsive макетов
+alwaysApply: false
+---
+
+# Tailwind JIT — Responsive Layouts
+
+**Goal:** Use Tailwind CSS with Just-In-Time compilation for responsive, interactive layouts.
+
+---
+
+## Core Concept
+
+```tsx
+// ✅ Use className for responsive layouts
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  <div className="hover:bg-primary transition-colors duration-200">
+    Content
+  </div>
+</div>
+
+// ❌ Don't use for static inline styles
+<div style={twsx('p-4')}>Content</div>
+```
+
+---
+
+## Usage Patterns
+
+### Responsive Grid
+```tsx
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  {/* Mobile: 1 column */}
+  {/* Tablet: 2 columns */}
+  {/* Desktop: 3 columns */}
+</div>
+```
+
+### Responsive Flex
+```tsx
+<div className="flex flex-col md:flex-row gap-4">
+  {/* Mobile: vertical stack */}
+  {/* Desktop: horizontal layout */}
+</div>
+```
+
+### Responsive Spacing
+```tsx
+<div className="p-4 md:p-6 lg:p-8">
+  {/* Small padding on mobile, larger on desktop */}
+</div>
+```
+
+### Interactive States
+```tsx
+<button className="bg-primary hover:bg-primary/80 focus:ring-2 focus:ring-primary/50 transition-colors duration-200">
+  Click me
+</button>
+```
+
+---
+
+## Breakpoints
+
+| Prefix | Min Width | Typical Device |
+|--------|-----------|----------------|
+| `sm:` | 640px | Large phones |
+| `md:` | 768px | Tablets |
+| `lg:` | 1024px | Laptops |
+| `xl:` | 1280px | Desktops |
+| `2xl:` | 1536px | Large screens |
+
+---
+
+## When to Use className
+
+### ✅ Responsive Layouts
+```tsx
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" />
+```
+
+### ✅ Hover/Focus States
+```tsx
+<div className="hover:bg-primary focus:ring-2 transition-colors" />
+```
+
+### ✅ Animations & Transitions
+```tsx
+<div className="transition-all duration-300 ease-in-out" />
+```
+
+### ✅ Complex Styling Logic
+```tsx
+<div className={cn(
+  "base-styles",
+  variant === "primary" && "primary-styles",
+  isDisabled && "disabled-styles"
+)} />
+```
+
+---
+
+## When to Use twsx()
+
+### ✅ Simple Inline Styles
+```tsx
+<div style={twsx('p-4 m-2 bg-primary')} />
+```
+
+### ✅ Dynamic Styles
+```tsx
+<div style={twsx(`p-${spacing}`)} />
+```
+
+### ✅ Module-Level Styles
+```tsx
+const styles = { card: twsx('p-6 rounded-lg shadow-sm') };
+<div style={styles.card} />
+```
+
+---
+
+## Best Practices
+
+### 1. Static Class Strings Only
+```tsx
+// ✅ JIT can analyze static strings
+<div className="grid grid-cols-1 md:grid-cols-2" />
+
+// ❌ JIT can't analyze dynamic strings
+<div className={`grid grid-cols-${cols}`} />
+```
+
+### 2. Use Semantic Breakpoints
+```tsx
+// ✅ Meaningful breakpoints
+<div className="hidden md:block lg:hidden" />
+
+// ❌ Avoid arbitrary breakpoints
+<div className="md:w-[500px]" />
+```
+
+### 3. Combine with UI8Kit Components
+```tsx
+// ✅ Use Grid component for responsive grids
+<Grid cols="1-2-3" gap="lg" />
+
+// ✅ Use className for custom responsive behavior
+<div className="flex flex-col md:flex-row items-center" />
+```
+
+### 4. Performance Considerations
+- Keep class strings short and focused
+- Use component composition over complex class strings
+- Prefer UI8Kit components for common patterns
+
+---
+
+## Common Patterns
+
+### Responsive Navigation
+```tsx
+<nav className="flex flex-col md:flex-row gap-4 items-center">
+  {/* Stacks vertically on mobile, horizontally on desktop */}
+</nav>
+```
+
+### Responsive Card Grid
+```tsx
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+  {/* Responsive card grid */}
+</div>
+```
+
+### Responsive Typography
+```tsx
+<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold">
+  Responsive heading
+</h1>
+```
+
+---
+
+## Integration with TWSX
+
+Use both approaches together:
+
+```tsx
+<div className="min-h-screen flex flex-col">
+  <header className="w-full py-4 px-6 bg-background border-b border-border">
+    Header with responsive layout
+  </header>
+  <main style={twsx('flex-1 p-6')}>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div style={twsx('p-4 bg-card rounded-lg')}>
+        Card with inline styles
+      </div>
+    </div>
+  </main>
+</div>
+```
+
+---
+
+## Performance
+
+- **JIT Compilation:** Only generates CSS for used classes
+- **Atomic CSS:** Minimal CSS output
+- **Fast Builds:** No runtime CSS generation
+- **Tree Shaking:** Unused classes are eliminated
