@@ -53,8 +53,8 @@ export const lesseUITheme = {
   rounded: {
     // none | default | sm | md | lg | xl | "2xl" | "3xl" | full
     default: "sm" as const,
-    button: "sm" as const,
-    badge: "full" as const
+    button: "md" as const,
+    badge: "xl" as const
   },
   buttonSize: {
     // xs | sm | default | md | lg | xl | icon

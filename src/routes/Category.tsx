@@ -23,7 +23,7 @@ export default function Category() {
         {filtered.length === 0 ? (
           <Stack gap="md">
             <Text>No posts found in this category.</Text>
-            <Link to="/blog"><Button size="sm">Back to blog</Button></Link>
+            <Link to="/blog"><Button>Back to blog</Button></Link>
           </Stack>
         ) : (
           <Grid cols="1-2-3" gap="lg">

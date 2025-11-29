@@ -1,12 +1,14 @@
 import { Card, Stack, Title, Text, Button, Image, Group } from '@ui8kit/core'
 import { Link } from 'react-router-dom'
 import { authorPath } from '@/lib/paths'
+import { useTheme } from '@/providers/theme'
 
 type Author = { id: number; name: string; slug: string; count?: number; avatarUrl?: string }
 
 export function AuthorCard({ item }: { item: Author }) {
+  const { rounded } = useTheme()
   return (
-    <Card p="lg" rounded="lg" shadow="sm" bg="card">
+    <Card p="lg" rounded={rounded.default} shadow="sm" bg="card">
       <Group gap="md" align="center">
         {item.avatarUrl && <Image src={item.avatarUrl} alt={item.name} rounded="full" w={"auto"} height={48} />}
         <Stack gap="sm">
@@ -15,7 +17,7 @@ export function AuthorCard({ item }: { item: Author }) {
         </Stack>
       </Group>
       <Link to={authorPath(item.slug)}>
-        <Button size="sm" m="sm">View posts</Button>
+        <Button m="sm">View posts</Button>
       </Link>
     </Card>
   )

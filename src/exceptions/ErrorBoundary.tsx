@@ -12,7 +12,7 @@ export default function ErrorBoundary() {
         <Title order={1} size="2xl">{status} {message}</Title>
         <Text c="secondary-foreground">Try searching or go back to the homepage.</Text>
         <SearchBar />
-        <Link to="/"><Button size="sm">Go Home</Button></Link>
+        <Link to="/"><Button>Go Home</Button></Link>
       </Stack>
     </Block>
   )

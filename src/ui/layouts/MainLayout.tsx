@@ -44,7 +44,7 @@ export function MainLayout({ children, sidebar = 'right' as 'left' | 'right' | '
                 </nav>
               )}
 
-              <Button variant="ghost" size="sm" aria-label="Toggle dark mode" onClick={toggleDarkMode}>
+              <Button variant="ghost" aria-label="Toggle dark mode" onClick={toggleDarkMode}>
                 <Icon lucideIcon={isDarkMode ? Sun : Moon} />
               </Button>
 
@@ -53,7 +53,7 @@ export function MainLayout({ children, sidebar = 'right' as 'left' | 'right' | '
                   <Stack gap="sm">
                     <SearchBar />
                     {menu.primary.items.map(item => (
-                      <Button key={item.id} variant="ghost" size="sm" onClick={() => navigate(item.url)}>{item.title}</Button>
+                      <Button key={item.id} variant="ghost" onClick={() => navigate(item.url)}>{item.title}</Button>
                     ))}
                   </Stack>
                 </Sheet>

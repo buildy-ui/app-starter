@@ -2,9 +2,11 @@ import { Block, Stack, Title, Text, Button, Grid, Card, Group, Image } from '@ui
 import { SEO } from '@/ui/SEO'
 import { HomeLatest } from '@/ui/HomeLatest'
 import { renderContext } from '@/data'
+import { useTheme } from '@/providers/theme'
 
 export default function Home() {
   const { home } = renderContext
+  const { rounded } = useTheme()
   return (
     <Block component="main" py="lg">
       <SEO title={home.page.title} description={home.page.excerpt} />
@@ -15,8 +17,8 @@ export default function Home() {
           <Text size="lg" c="secondary-foreground" leading="relaxed">{home.page.excerpt}</Text>
         </Stack>
         <Group gap="md" justify="center">
-          <Button size="lg" variant="default">Get Started</Button>
-          <Button size="lg" variant="secondary">Learn More</Button>
+          <Button variant="default">Get Started</Button>
+          <Button variant="secondary">Learn More</Button>
         </Group>
       </Stack>
 
@@ -27,10 +29,10 @@ export default function Home() {
         </Stack>
         <Grid cols="1-2-3" gap="lg">
           {home.features.map((f) => (
-            <Card key={f.id} p="lg" rounded="xl" shadow="md" bg="card">
+            <Card key={f.id} p="lg" rounded={rounded.default} shadow="md" bg="card">
               <Stack gap="lg">
                 {f.featuredImage?.url && (
-                  <Image src={f.featuredImage.url} alt={f.featuredImage.alt} rounded="lg" w="full" h="auto" fit="cover" />
+                  <Image src={f.featuredImage.url} alt={f.featuredImage.alt} rounded={rounded.default} w="full" h="auto" fit="cover" />
                 )}
                 <Stack gap="md">
                   <Title order={3} size="xl" fw="semibold">{f.title}</Title>

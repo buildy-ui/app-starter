@@ -17,7 +17,7 @@ export function SearchBar({ initial = '' }: { initial?: string }) {
         data-class="search-input"
         className="p-2 text-sm text-foreground rounded-lg border border-input bg-input focus:outline-none focus:ring focus:ring-primary"
       />
-      <Button size="sm" onClick={go}>Search</Button>
+      <Button onClick={go}>Search</Button>
     </Group>
   )
 }

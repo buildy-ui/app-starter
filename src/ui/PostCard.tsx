@@ -1,6 +1,7 @@
 import { Card, Image, Stack, Title, Text, Group, Badge, Button } from '@ui8kit/core'
 import { Link } from 'react-router-dom'
 import { postPath } from '@/lib/paths'
+import { useTheme } from '@/providers/theme'
 
 type Post = {
   id: number
@@ -13,18 +14,20 @@ type Post = {
 }
 
 export function PostCard({ post, media = 'default' }: { post: Post, media?: 'top' | 'default' }) {
+  const { rounded } = useTheme()
+
   return (
-    <Card p={media === 'top' ? 'none' : 'lg'} rounded="xl" shadow="md" bg="card" data-class="post-card">
+    <Card p={media === 'top' ? 'none' : 'lg'} rounded={rounded.default} shadow="md" bg="card" data-class="post-card">
       <Stack gap={media === 'top' ? 'none' : 'lg'}>
         {post.thumbnail?.url && (
           <Link to={postPath(post.slug)}>
-            <Image 
-              src={post.thumbnail.url} 
-              alt={post.thumbnail.alt} 
-              rounded={media === 'top' ? 'none' : 'lg'}
-              w="full" 
-              h="auto" 
-              fit="cover" 
+            <Image
+              src={post.thumbnail.url}
+              alt={post.thumbnail.alt}
+              rounded={media === 'top' ? 'none' : rounded.default}
+              w="full"
+              h="auto"
+              fit="cover"
             />
           </Link>
         )}
@@ -43,7 +46,7 @@ export function PostCard({ post, media = 'default' }: { post: Post, media?: 'top
         </Stack>
         <Stack p={media === 'top' ? 'md' : 'none'} align="end">
           <Link to={postPath(post.slug)}>
-            <Button size="sm" variant="secondary">Read more</Button>
+            <Button variant="secondary">Read more</Button>
           </Link>
         </Stack>
       </Stack>

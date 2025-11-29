@@ -136,7 +136,6 @@ const AccordionTrigger = React.forwardRef<HTMLButtonElement, AccordionTriggerPro
       <Button
         ref={ref}
         variant="ghost"
-        size="sm"
         w={w || "full"}
         contentAlign="between"
         onClick={() => onItemClick(value)}

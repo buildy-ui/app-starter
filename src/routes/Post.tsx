@@ -6,19 +6,20 @@ import { PostMeta } from '@/ui/PostMeta'
 import { AuthorBio } from '@/ui/AuthorBio'
 import { RelatedPosts } from '@/ui/RelatedPosts'
 import { renderContext } from '@/data'
+import { useTheme } from '@/providers/theme'
 
 export default function Post() {
   const { slug } = useParams<{ slug: string }>()
   const { posts } = renderContext
   const post = posts.posts.find(p => p.slug === slug)
-
+  const { rounded } = useTheme()
   if (!post) {
     return (
       <Block component="main" py="lg">
         <Stack gap="md">
           <Title order={1} size="2xl">Post Not Found</Title>
           <Text>The post you're looking for doesn't exist.</Text>
-          <Link to="/"><Button size="sm">Return to homepage</Button></Link>
+          <Link to="/"><Button>Return to homepage</Button></Link>
         </Stack>
       </Block>
     )
@@ -30,7 +31,7 @@ export default function Post() {
         <SEO title={post.title} description={post.excerpt} />
         <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Blog', to: '/blog' }, { label: post.title }]} />
         {post.featuredImage?.url && (
-          <Image src={post.featuredImage.url} alt={post.featuredImage.alt} rounded="lg" w="full" h="auto" fit="cover" />
+          <Image src={post.featuredImage.url} alt={post.featuredImage.alt} rounded={rounded.default} w="full" h="auto" fit="cover" />
         )}
 
         <Stack gap="md">

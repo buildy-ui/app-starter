@@ -1,6 +1,7 @@
 import { Card, Group, Image, Stack, Title, Text } from '@ui8kit/core'
 import { Link } from 'react-router-dom'
 import { authorPath } from '@/lib/paths'
+import { useTheme } from '@/providers/theme'
 
 type Author = {
   name: string
@@ -10,8 +11,9 @@ type Author = {
 }
 
 export function AuthorBio({ author }: { author: Author & { slug?: string } }) {
+  const { rounded } = useTheme()
   return (
-    <Card p="lg" rounded="lg" shadow="sm" bg="card">
+    <Card p="lg" rounded={rounded.default} shadow="sm" bg="card">
       <Link to={author.slug ? authorPath(author.slug) : '#'}>
         <Group gap="md" align="start">
           {author.avatar?.url && (
