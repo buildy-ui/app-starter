@@ -1,0 +1,130 @@
+```tsx
+/**
+ * twsx - Tailwind to StyleX converter for React Strict DOM
+ * 
+ * Usage: twsx('min-h-screen flex flex-col gap-4')
+ * Returns: StyleX-compatible style object
+ * 
+ * Goal: Zero CSS files, styles injected inline via RSD
+ * 
+ * IMPORTANT: This utility does NOT use Tailwind JIT!
+ * - Styles are converted to CSS objects at runtime
+ * - StyleX/RSD injects styles directly into DOM
+ * - No className generation, no CSS file output
+ * - Bundle contains only used style objects (tree-shaking)
+ * 
+ * For Tailwind JIT (UI8Kit components):
+ * - Use static className strings only
+ * - Never use template literals for classes: `mt-${n}`
+ * - CVA variants are statically analyzed
+ */
+
+import { css } from 'react-strict-dom';
+
+// =============================================================================
+// TAILWIND → CSS MAP
+// Based on Tailwind defaults + shadcn design tokens
+// =============================================================================
+
+const tw: Record<string, Record<string, string | number>> = {
+  // ---------------------------------------------------------------------------
+  // DISPLAY
+  // ---------------------------------------------------------------------------
+  'block': { display: 'block' },
+  'inline-block': { display: 'inline-block' },
+  'inline': { display: 'inline' },
+
+   // Etc tailwind based styles
+}
+
+// =============================================================================
+// STYLE CACHE
+// =============================================================================
+
+const styleCache = new Map<string, ReturnType<typeof css.create>>();
+
+// =============================================================================
+// TWSX FUNCTION
+// =============================================================================
+
+/**
+ * Convert Tailwind class string to StyleX style object
+ * 
+ * @param classes - Space-separated Tailwind classes (like native Tailwind)
+ * @returns StyleX-compatible style object for RSD `style` prop
+ * 
+ * @example
+ * // Basic usage
+ * <html.div style={twsx('flex flex-col gap-4 p-6')} />
+ * 
+ * // Conditional styles
+ * <html.div style={[twsx('flex gap-4'), isActive && twsx('bg-primary')]} />
+ * 
+ * // Multiple strings
+ * <html.div style={twsx('min-h-screen', 'flex items-center justify-center')} />
+ */
+export function twsx(...classStrings: (string | undefined | null | false)[]): Record<string, string | number> {
+  // Filter and join all class strings
+  const input = classStrings
+    .filter((s): s is string => typeof s === 'string' && s.length > 0)
+    .join(' ')
+    .trim();
+
+  if (!input) return {};
+
+  // Check cache
+  const cached = styleCache.get(input);
+  if (cached) {
+    return cached.root as Record<string, string | number>;
+  }
+
+  // Parse classes
+  const classes = input.split(/\s+/).filter(Boolean);
+  const merged: Record<string, string | number> = {};
+
+  for (const cls of classes) {
+    const styles = tw[cls];
+    if (styles) {
+      Object.assign(merged, styles);
+    } else if (process.env.NODE_ENV === 'development') {
+      console.warn(`[twsx] Unknown class: "${cls}"`);
+    }
+  }
+
+  // Create StyleX styles and cache
+  const created = css.create({ root: merged });
+  styleCache.set(input, created);
+
+  return created.root as Record<string, string | number>;
+}
+
+/**
+ * Create a reusable style object (for module-level definitions)
+ * 
+ * @example
+ * const styles = twsxCreate({
+ *   container: 'min-h-screen flex flex-col',
+ *   header: 'w-full py-4 px-6 bg-background',
+ *   main: 'flex-1 p-6',
+ * });
+ * 
+ * <html.div style={styles.container}>
+ *   <html.header style={styles.header} />
+ *   <html.main style={styles.main} />
+ * </html.div>
+ */
+export function twsxCreate<T extends Record<string, string>>(
+  definitions: T
+): { [K in keyof T]: Record<string, string | number> } {
+  const result = {} as { [K in keyof T]: Record<string, string | number> };
+  
+  for (const key in definitions) {
+    result[key] = twsx(definitions[key]);
+  }
+  
+  return result;
+}
+
+// Export the tw map for extension
+export { tw };
+```

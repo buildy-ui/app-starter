@@ -2,47 +2,176 @@
 description: При любом упоминании `ui8kit` или `core ui` - опирайся на это правило
 alwaysApply: false
 ---
-# ui9kit interface composition rule (@ui8kit.mdc)
+# UI8Kit Core — Minimal Component System
 
-- **Source of truth — `@ui8kit/core`**: Build UI only from `@ui8kit/core` primitives (`Block`, `Container`, `Grid`, `Stack`, `Text`, `Title`, `Button`, `Card`, `Icon`, etc.). Do not use `className`/`style` or external CSS classes. Exception: third‑party integrations (e.g., resizers) where `className` is unavoidable; such styles must stay neutral and must not bypass design tokens.
+## Philosophy
 
-- **No decoration inside core**: Core forbids hover shadows, animations, gradients, custom colors, and any decorative effects. Visual polish belongs to templates/brand level only.
+**Zero className, zero style** — only props from a limited set of components.
+Goal: not a single extra line of code or classes.
 
-- **Architecture (Atomic)**:
-  - `@ui` → atoms (primitives)
-  - `@components` → molecules
-  - `@factory` → organisms/composers
-  - `@blocks` → prototypes
-  - templates/brand → final assembly
+UI8Kit Core covers **80% of design needs** with just **13 components** and **12 variant modules**.
 
-- **Variants via CVA**: Define and extend variants only under `variants`. Components must not duplicate or conflict with these variants; components simply proxy props into CVA.
-  - Variants export: [packages/@ui8kit/core/src/core/variants/index.ts](mdc:packages/@ui8kit/core/src/core/variants/index.ts)
+---
 
-- **Theme and tokens**: Use tokens from `@ui8kit/theme` for sizes, radii, shadows, etc. (e.g., `theme.rounded`, `theme.buttonSize`). Colors use shadcn names; any extension should live in a separate tokens file.
-  - Theme: [packages/@ui8kit/theme/src/index.ts](mdc:packages/@ui8kit/theme/src/index.ts), example: [packages/@ui8kit/theme/src/themes/skyOS.ts](mdc:packages/@ui8kit/theme/src/themes/skyOS.ts)
+## Components (13)
 
-- **Width and layout**: Control container width only via `Container` props. Compose layout with `Container`, `Grid`, `Stack`, `Box`, `Block` instead of utility classes.
+### Layout (5)
+| Component | Purpose | Key Props |
+|-----------|---------|-----------|
+| `Block` | Semantic sections (section, main, nav, article, header, footer) | `variant`, `py`, `w`, `minH`, `bg` |
+| `Container` | Width-constrained wrapper with auto-centering | `size`, `ta`, `centered`, `fluid` |
+| `Stack` | Vertical flex container | `gap`, `align`, `justify`, `direction` |
+| `Group` | Horizontal flex container | `gap`, `align`, `justify`, `wrap`, `grow` |
+| `Box` | Universal container with all variants | All spacing, color, layout, flex, border props |
 
-- **Icons**: Use the `Icon` component with `lucideIcon`. Do not inline SVGs directly.
+> **Note:** For CSS Grid layouts, use RSD with `twsx('grid grid-cols-3 gap-4')`
 
-- **Responsiveness**: Use `@ui8kit/hooks` for responsive branching (e.g., `useMobile`), not custom media classes.
-  - Export: [packages/@ui8kit/hooks/src/index.ts](mdc:packages/@ui8kit/hooks/src/index.ts)
+### Typography (2)
+| Component | Purpose | Key Props |
+|-----------|---------|-----------|
+| `Title` | Headings h1-h6 | `order`, `size`, `fw`, `ta`, `leading`, `tracking` |
+| `Text` | Paragraphs and inline text | `size`, `fw`, `ta`, `leading`, `truncate`, `italic` |
 
-- **Comments and code style**: All code comments must be in English. Naming and props should be descriptive and consistent.
+### Interactive (2)
+| Component | Purpose | Key Props |
+|-----------|---------|-----------|
+| `Button` | Buttons with variants | `variant`, `size`, `rounded`, `loading`, `leftSection`, `rightSection` |
+| `Badge` | Labels and status indicators | `variant`, `size`, `rounded`, `dot`, `leftSection`, `rightSection` |
 
-## Quick checklist
-- Uses only `@ui8kit/core` components without `className`/`style`? (unless an external integration requires it)
-- All visual variants come from CVA `variants`, not hardcoded in the component?
-- All sizes/radii/colors come from `@ui8kit/theme` tokens and allowed shadcn color names?
-- Width is controlled by `Container` props and layout by `Grid`/`Stack`/`Box`?
-- Icons via `Icon` + `lucideIcon`?
-- Responsive branching via `@ui8kit/hooks`?
+### Media (2)
+| Component | Purpose | Key Props |
+|-----------|---------|-----------|
+| `Image` | Images with fit/position control | `fit`, `position`, `aspect`, `rounded`, `fallbackSrc` |
+| `Icon` | Icon wrapper for Lucide icons | `lucideIcon`, `size`, `c` |
 
-## Reference files
-- Project memory: [memory.md](mdc:memory.md)
-- Core exports: [packages/@ui8kit/core/src/index.ts](mdc:packages/@ui8kit/core/src/index.ts)
-- Theme exports: [packages/@ui8kit/theme/src/index.ts](mdc:packages/@ui8kit/theme/src/index.ts)
-- Hooks exports: [packages/@ui8kit/hooks/src/index.ts](mdc:packages/@ui8kit/hooks/src/index.ts)
-- Compliant examples:
-  - [apps/cab/src/page/Dashboard.tsx](mdc:apps/cab/src/page/Dashboard.tsx)
-  - [apps/cab/src/components/Sidebar.tsx](mdc:apps/cab/src/components/Sidebar.tsx)
+### Composite (2)
+| Component | Purpose | Key Props |
+|-----------|---------|-----------|
+| `Card` | Card container with sub-components | `variant`, `rounded`, `shadow`, `border` + `.Header`, `.Title`, `.Description`, `.Content`, `.Footer` |
+| `Sheet` | Slide-out panel | - |
+
+---
+
+## Variants (12 modules)
+
+All variants are CVA-based and exported from `variants/index.ts`:
+
+| Module | Variants | Values |
+|--------|----------|--------|
+| **spacing** | `m`, `mx`, `my`, `mt`, `mb`, `ml`, `mr`, `p`, `px`, `py`, `pt`, `pb`, `pl`, `pr` | `none`, `xs`, `sm`, `md`, `lg`, `xl`, `2xl`, `auto` |
+| **flex** | `direction`, `align`, `justify`, `wrap`, `gap`, `grow`, `shrink`, `order` | See flex.ts |
+| **layout** | `display`, `w`, `h`, `minH`, `maxW`, `position`, `z`, `overflow` | See layout.ts |
+| **colors** | `bg`, `c`, `borderColor` | shadcn tokens: `background`, `foreground`, `primary`, `secondary`, `muted`, `accent`, `destructive`, `card`, `popover` |
+| **rounded** | `rounded` | `none`, `sm`, `md`, `lg`, `xl`, `2xl`, `3xl`, `full` |
+| **shadow** | `shadow` | `none`, `sm`, `md`, `lg`, `xl`, `2xl` |
+| **border** | `border`, `borderTop`, `borderBottom`, `borderLeft`, `borderRight` | `none`, `1px`, `2px` |
+| **typography** | `size`, `fw`, `ta`, `leading`, `tracking`, `truncate`, `italic`, `underline` | See typography.ts |
+| **button** | `variant`, `size`, `contentAlign` | `default`, `primary`, `secondary`, `destructive`, `outline`, `ghost`, `link` / `xs`, `sm`, `default`, `md`, `lg`, `xl`, `icon` |
+| **badge** | `variant`, `size` | `default`, `secondary`, `destructive`, `outline`, `success`, `warning`, `info` / `xs`, `sm`, `default`, `lg` |
+| **image** | `fit`, `position`, `aspect` | `cover`, `contain`, `fill`, `none` / `center`, `top`, `bottom`, `left`, `right` / `auto`, `square`, `video`, `wide` |
+| **sizing** | `iconSize`, `containerSize` | See sizing.ts |
+
+---
+
+## Rules
+
+### 1. No className / style
+```tsx
+// ❌ FORBIDDEN
+<Box className="mt-4 text-center" />
+<div style={{ padding: 16 }} />
+
+// ✅ CORRECT
+<Box mt="md" />
+<Stack gap="lg" align="center" />
+```
+
+### 2. Layout via Components Only
+```tsx
+// ❌ FORBIDDEN
+<div className="flex flex-col gap-4">
+
+// ✅ CORRECT
+<Stack gap="md">
+```
+
+### 3. Colors from shadcn Tokens
+```tsx
+// ❌ FORBIDDEN
+bg="blue-500"
+c="#333"
+
+// ✅ CORRECT
+bg="primary"
+c="foreground"
+bg="muted"
+```
+
+### 4. Icons via Icon Component
+```tsx
+// ❌ FORBIDDEN
+<Settings className="w-4 h-4" />
+
+// ✅ CORRECT
+<Icon lucideIcon={Settings} size="sm" />
+```
+
+### 5. Text Alignment Inherits
+`Title` and `Text` inherit `text-align` from parent. Set `ta` on `Container` or parent `Stack`/`Box`.
+
+```tsx
+<Container ta="center">
+  <Title>Centered Title</Title>
+  <Text>Centered text</Text>
+</Container>
+```
+
+### 6. Stack vs Group
+- `Stack` — vertical (column), default `direction="col"`
+- `Group` — horizontal (row), includes `flex` base class
+
+---
+
+## Quick Reference
+
+### Spacing Scale
+| Token | Tailwind | px |
+|-------|----------|-----|
+| `xs` | 1 | 4px |
+| `sm` | 2 | 8px |
+| `md` | 4 | 16px |
+| `lg` | 6 | 24px |
+| `xl` | 8 | 32px |
+| `2xl` | 12 | 48px |
+
+### Gap Scale (flex/grid)
+| Token | Tailwind | px |
+|-------|----------|-----|
+| `none` | 0 | 0 |
+| `xs` | 1 | 4px |
+| `sm` | 2 | 8px |
+| `md` | 4 | 16px |
+| `lg` | 6 | 24px |
+| `xl` | 8 | 32px |
+| `2xl` | 10 | 40px |
+| `3xl` | 12 | 48px |
+
+---
+
+## Checklist
+
+- [ ] Uses only UI8Kit components?
+- [ ] No `className` or `style` props?
+- [ ] Colors from shadcn tokens only?
+- [ ] Layout via `Stack`/`Group`/`Box`?
+- [ ] Grid layouts via RSD + `twsx`?
+- [ ] Icons via `Icon` + `lucideIcon`?
+- [ ] Text alignment set on parent container?
+
+---
+
+## File References
+
+- Components: `apps/web/src/components/ui/`
+- Variants: `apps/web/src/variants/`
+- Exports: `apps/web/src/components/ui/index.ts`

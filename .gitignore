@@ -7,7 +7,9 @@ build
 .project/
 .prompt/
 .cursorignore
+npmrc
 bun.lock
+bun.lockb
 package-lock.json
 .env
 .env.*
