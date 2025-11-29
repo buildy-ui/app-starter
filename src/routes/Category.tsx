@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router-dom'
-import { Block, Container, Stack, Title, Text, Grid, Button } from '@ui8kit/core'
+import { Block, Stack, Title, Text, Grid, Button } from '@ui8kit/core'
 import { renderContext } from '@/data'
 import { Breadcrumbs } from '@/ui/Breadcrumbs'
 import { PostCard } from '@/ui/PostCard'

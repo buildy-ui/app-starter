@@ -11,7 +11,7 @@ export function RelatedPosts({ currentId, posts }: { currentId: number; posts: P
   return (
     <Stack gap="md">
       <Title order={2} size="xl">Related Posts</Title>
-      <Stack gap="md">
+      <Stack gap="lg">
         {related.map(p => (
           <SmallMediaCard key={p.id} item={p as any} />
         ))}

@@ -1,4 +1,4 @@
-import { Block, Container, Stack, Title, Text, Grid } from '@ui8kit/core'
+import { Block, Stack, Title, Text, Grid } from '@ui8kit/core'
 import { Breadcrumbs } from '@/ui/Breadcrumbs'
 import { SEO } from '@/ui/SEO'
 import { PostCard } from '@/ui/PostCard'

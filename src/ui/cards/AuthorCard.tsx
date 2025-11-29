@@ -8,7 +8,7 @@ export function AuthorCard({ item }: { item: Author }) {
   return (
     <Card p="lg" rounded="lg" shadow="sm" bg="card">
       <Group gap="md" align="center">
-        {item.avatarUrl && <Image src={item.avatarUrl} alt={item.name} rounded="full" w={"auto"} h={48} />}
+        {item.avatarUrl && <Image src={item.avatarUrl} alt={item.name} rounded="full" w={"auto"} height={48} />}
         <Stack gap="sm">
           <Title order={3} size="lg">{item.name}</Title>
           {typeof item.count === 'number' && <Text size="sm" c="secondary-foreground">{item.count} posts</Text>}

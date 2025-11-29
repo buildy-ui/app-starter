@@ -179,7 +179,7 @@ const Grid = forwardRef<HTMLDivElement, GridProps>((props, ref) => {
   const gridClassName = cn(gridClasses, className);
 
   return (
-    <div ref={ref} className={gridClassName} {...rest}>
+    <div ref={ref} className={cn("grid", gridClassName)} {...rest}>
       {children}
     </div>
   );

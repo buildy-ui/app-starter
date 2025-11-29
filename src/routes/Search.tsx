@@ -1,5 +1,5 @@
-import { useSearchParams, Link } from 'react-router-dom'
-import { Block, Container, Stack, Title, Text, Grid } from '@ui8kit/core'
+import { useSearchParams } from 'react-router-dom'
+import { Block, Stack, Title, Text, Grid } from '@ui8kit/core'
 import { renderContext } from '@/data'
 import { Breadcrumbs } from '@/ui/Breadcrumbs'
 import { SEO } from '@/ui/SEO'

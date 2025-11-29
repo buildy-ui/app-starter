@@ -1,5 +1,5 @@
 import { useRouteError, isRouteErrorResponse, Link } from 'react-router-dom'
-import { Block, Container, Stack, Title, Text, Button } from '@ui8kit/core'
+import { Block, Stack, Title, Text, Button } from '@ui8kit/core'
 import { SearchBar } from '@/ui/SearchBar'
 
 export default function ErrorBoundary() {
