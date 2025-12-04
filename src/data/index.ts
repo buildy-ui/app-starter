@@ -3,7 +3,7 @@ import { site, menu } from './wpfasty/context';
 import { about } from './pages/about';
 import { home } from './pages/home';
 import { blog } from './pages/blog';
-import { getPosts, getCategories, getTags, getAuthors } from './posts';
+import { getPosts, getCategories, getTags, getAuthors, getPages, getHomePage, getAboutPage } from './posts';
 
 // Normalize and aggregate derived data so counts are consistent
 async function normalize() {
@@ -55,16 +55,24 @@ async function normalize() {
 
 // Async function to get render context with dynamic posts
 export async function getRenderContext() {
-  const { posts, categories, tags, authors } = await normalize();
+  const [normalized, pages, homePage, aboutPage] = await Promise.all([
+    normalize(),
+    getPages(),
+    getHomePage(),
+    getAboutPage()
+  ]);
+
+  const { posts, categories, tags, authors } = normalized;
 
   return {
-    about,
-    home,
+    about: aboutPage,
+    home: homePage,
     blog,
     posts,
     categories,
     tags,
     authors,
+    pages,
     site,
     menu,
   } as const;
@@ -79,6 +87,7 @@ export const renderContext = {
   categories: [],
   tags: [],
   authors: [],
+  pages: [], // Static pages fallback
   site,
   menu,
 } as const;

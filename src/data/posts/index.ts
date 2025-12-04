@@ -253,6 +253,71 @@ async function fetchUsersFromAPI(): Promise<Array<{
   }
 }
 
+// Function to fetch pages
+async function fetchPagesFromAPI(): Promise<Array<{
+  id: string;
+  pageId: number;
+  title: string;
+  content: string;
+  slug: string;
+  excerpt: string;
+  featuredImage?: {
+    node: {
+      sourceUrl: string;
+      altText: string;
+    };
+  };
+  pageFields?: Array<{
+    key: string;
+    value: string;
+  }>;
+}>> {
+  const query = `
+    {
+      pages(first: 20) {
+        nodes {
+          id
+          pageId
+          title
+          content
+          slug
+          excerpt
+          featuredImage {
+            node {
+              sourceUrl
+              altText
+            }
+          }
+          pageFields {
+            key
+            value
+          }
+        }
+      }
+    }
+  `;
+
+  try {
+    const response = await fetch(GRAPHQL_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Pages API error: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return result.data?.pages?.nodes || [];
+  } catch (error) {
+    console.error('Failed to fetch pages:', error);
+    return [];
+  }
+}
+
 // Transform GraphQL post to our internal format
 function transformGraphQLPostToInternal(post: GraphQLPost): any {
   return {
@@ -382,6 +447,435 @@ export async function getAuthors(): Promise<Array<{
     avatar: user.avatar?.url,
     bio: '' // Can be extended with additional user data
   })).sort((a, b) => a.name.localeCompare(b.name));
+}
+
+// Async function to get all pages
+export async function getPages(): Promise<Array<{
+  id: number;
+  title: string;
+  content: string;
+  slug: string;
+  excerpt: string;
+  url: string;
+  featuredImage?: {
+    url: string;
+    width: number;
+    height: number;
+    alt: string;
+  };
+  thumbnail?: {
+    url: string;
+    width: number;
+    height: number;
+    alt: string;
+  };
+  meta: {
+    _edit_last: string;
+    _edit_lock: string;
+  };
+  categories: Array<any>; // Pages usually don't have categories
+  date: {
+    formatted: string;
+    display: string;
+    modified: string;
+    modified_display: string;
+    timestamp: number;
+    year: string;
+    month: string;
+    day: string;
+  };
+}>> {
+  const apiPages = await fetchPagesFromAPI();
+
+  return apiPages.map(page => ({
+    id: page.pageId,
+    title: page.title,
+    content: page.content,
+    slug: page.slug,
+    excerpt: page.excerpt,
+    url: `/pages/${page.slug}`,
+    featuredImage: page.featuredImage ? {
+      url: page.featuredImage.node.sourceUrl,
+      width: 800,
+      height: 600,
+      alt: page.featuredImage.node.altText
+    } : undefined,
+    thumbnail: page.featuredImage ? {
+      url: page.featuredImage.node.sourceUrl.replace('/w=800&h=600&fit=crop', '/w=300&h=200&fit=crop'),
+      width: 300,
+      height: 200,
+      alt: page.featuredImage.node.altText
+    } : undefined,
+    meta: {
+      _edit_last: '1',
+      _edit_lock: `${Date.now()}:1`
+    },
+    categories: [], // Pages don't typically have categories
+    date: {
+      formatted: new Date().toISOString(), // Pages might not have dates in GraphQL
+      display: new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }),
+      modified: new Date().toISOString(),
+      modified_display: new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }),
+      timestamp: Math.floor(Date.now() / 1000),
+      year: new Date().getFullYear().toString(),
+      month: (new Date().getMonth() + 1).toString().padStart(2, '0'),
+      day: new Date().getDate().toString().padStart(2, '0')
+    }
+  }));
+}
+
+// Async function to get specific page by slug
+export async function getPageBySlug(slug: string): Promise<{
+  id: number;
+  title: string;
+  content: string;
+  slug: string;
+  excerpt: string;
+  url: string;
+  featuredImage?: {
+    url: string;
+    width: number;
+    height: number;
+    alt: string;
+  };
+  thumbnail?: {
+    url: string;
+    width: number;
+    height: number;
+    alt: string;
+  };
+  meta: {
+    _edit_last: string;
+    _edit_lock: string;
+  };
+  categories: Array<any>;
+  date: {
+    formatted: string;
+    display: string;
+    modified: string;
+    modified_display: string;
+    timestamp: number;
+    year: string;
+    month: string;
+    day: string;
+  };
+} | null> {
+  const query = `
+    {
+      page(id: "/${slug}/", idType: URI) {
+        id
+        pageId
+        title
+        content
+        slug
+        featuredImage {
+          node {
+            sourceUrl
+            altText
+          }
+        }
+        pageFields {
+          key
+          value
+        }
+      }
+    }
+  `;
+
+  try {
+    const response = await fetch(GRAPHQL_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Page API error: ${response.status}`);
+    }
+
+    const result = await response.json();
+    const page = result.data?.page;
+
+    if (!page) {
+      return null;
+    }
+
+    return {
+      id: page.pageId,
+      title: page.title,
+      content: page.content,
+      slug: page.slug,
+      excerpt: page.content ? page.content.replace(/<[^>]*>/g, '').substring(0, 150) + '...' : '',
+      url: `/${page.slug}`,
+      featuredImage: page.featuredImage ? {
+        url: page.featuredImage.node.sourceUrl,
+        width: 800,
+        height: 600,
+        alt: page.featuredImage.node.altText
+      } : undefined,
+      thumbnail: page.featuredImage ? {
+        url: page.featuredImage.node.sourceUrl.replace('/w=800&h=600&fit=crop', '/w=300&h=200&fit=crop'),
+        width: 300,
+        height: 200,
+        alt: page.featuredImage.node.altText
+      } : undefined,
+      meta: {
+        _edit_last: '1',
+        _edit_lock: `${Date.now()}:1`
+      },
+      categories: [],
+      date: {
+        formatted: new Date().toISOString(),
+        display: new Date().toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        }),
+        modified: new Date().toISOString(),
+        modified_display: new Date().toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        }),
+        timestamp: Math.floor(Date.now() / 1000),
+        year: new Date().getFullYear().toString(),
+        month: (new Date().getMonth() + 1).toString().padStart(2, '0'),
+        day: new Date().getDate().toString().padStart(2, '0')
+      }
+    };
+  } catch (error) {
+    console.error('Failed to fetch page:', error);
+    return null;
+  }
+}
+
+// Async function to get home page data with features
+export async function getHomePage(): Promise<{
+  page: {
+    title: string;
+    excerpt: string;
+    content: string;
+  };
+  features: Array<{
+    id: number;
+    title: string;
+    excerpt: string;
+    featuredImage: {
+      url: string;
+      alt: string;
+      caption: string;
+    };
+  }>;
+}> {
+  // Try to get home page from GraphQL
+  const homePage = await getPageBySlug('home');
+
+  if (homePage) {
+    // If home page exists in CMS, use it and create features from pageFields or default
+    return {
+      page: {
+        title: homePage.title,
+        excerpt: homePage.excerpt,
+        content: homePage.content
+      },
+      features: [
+        {
+          id: 1,
+          title: 'About Our Approach',
+          excerpt: 'Discover how we transform Tailwind utilities into clean HTML5 semantic classes.',
+          featuredImage: homePage.featuredImage ? {
+            url: homePage.featuredImage.url,
+            alt: homePage.featuredImage.alt,
+            caption: 'Utility-first to semantic HTML5 transformation'
+          } : {
+            url: 'https://images.unsplash.com/vector-1746618662777-7058cb830c6a?q=80&w=1934&auto=format&fit=crop',
+            alt: 'Default feature image',
+            caption: 'Feature image'
+          }
+        },
+        {
+          id: 2,
+          title: 'Blog & Insights',
+          excerpt: 'Deep dive into modern frontend development practices.',
+          featuredImage: {
+            url: 'https://images.unsplash.com/vector-1746618662777-7058cb830c6a?q=80&w=1934&auto=format&fit=crop',
+            alt: 'Blog and insights',
+            caption: 'Frontend development insights'
+          }
+        },
+        {
+          id: 3,
+          title: 'Three Pillars Architecture',
+          excerpt: 'Explore the foundational pillars of modern frontend development.',
+          featuredImage: {
+            url: 'https://images.unsplash.com/vector-1746618662777-7058cb830c6a?q=80&w=1934&auto=format&fit=crop',
+            alt: 'Architecture pillars',
+            caption: 'Modern frontend architecture'
+          }
+        }
+      ]
+    };
+  }
+
+  // Fallback to default static data if home page not found
+  return {
+    page: {
+      title: 'Built with Pure HTML5 Semantic Structure',
+      excerpt: 'Experience the power of clean, semantic HTML5 architecture combined with modern React components and Tailwind CSS transformation.',
+      content: 'This website demonstrates the perfect implementation of semantic HTML5 structure, where every element serves a meaningful purpose. Built with clean, accessible markup that follows W3C standards, our approach transforms Tailwind CSS utilities into production-ready semantic classes. Explore how modern frontend architecture combines rapid development with maintainable, SEO-optimized code that works flawlessly across all devices and assistive technologies.'
+    },
+    features: [
+      {
+        id: 1,
+        title: 'About Our Approach',
+        excerpt: 'Discover how we transform Tailwind utilities into clean HTML5 semantic classes. Learn about our revolutionary methodology that bridges utility-first development with semantic production code, creating accessible, SEO-friendly markup.',
+        featuredImage: {
+          url: 'https://images.unsplash.com/vector-1746618662777-7058cb830c6a?q=80&w=1934&auto=format&fit=crop',
+          alt: 'Semantic HTML5 transformation approach',
+          caption: 'Utility-first to semantic HTML5 transformation'
+        }
+      },
+      {
+        id: 2,
+        title: 'Blog & Insights',
+        excerpt: 'Deep dive into modern frontend development practices, clean code principles, and semantic HTML5 techniques. Explore articles about component architecture, accessibility best practices, and performance optimization strategies.',
+        featuredImage: {
+          url: 'https://images.unsplash.com/vector-1746618662777-7058cb830c6a?q=80&w=1934&auto=format&fit=crop',
+          alt: 'Frontend development blog and insights',
+          caption: 'Clean code and semantic HTML5 insights'
+        }
+      },
+      {
+        id: 3,
+        title: 'Three Pillars Architecture',
+        excerpt: 'Explore the foundational pillars of modern frontend development: Semantic HTML5 Foundation, Component-Driven Architecture, and Utility-to-Semantic Transformation. See how these principles create scalable, maintainable applications.',
+        featuredImage: {
+          url: 'https://images.unsplash.com/vector-1746618662777-7058cb830c6a?q=80&w=1934&auto=format&fit=crop',
+          alt: 'Three pillars of modern frontend architecture',
+          caption: 'Semantic HTML5, Components, and Clean Architecture'
+        }
+      }
+    ]
+  };
+}
+
+// Async function to get about page data with features
+export async function getAboutPage(): Promise<{
+  page: {
+    title: string;
+    excerpt: string;
+    content: string;
+  };
+  features: Array<{
+    id: number;
+    title: string;
+    excerpt: string;
+    featuredImage: {
+      url: string;
+      alt: string;
+      caption: string;
+    };
+  }>;
+}> {
+  // Try to get about page from GraphQL
+  const aboutPage = await getPageBySlug('about');
+
+  if (aboutPage) {
+    return {
+      page: {
+        title: aboutPage.title,
+        excerpt: aboutPage.excerpt,
+        content: aboutPage.content
+      },
+      features: [
+        {
+          id: 1,
+          title: 'Utility-First to Semantic CSS Architecture',
+          excerpt: 'Leverage Tailwind CSS for rapid development while maintaining clean, semantic HTML5 output.',
+          featuredImage: aboutPage.featuredImage ? {
+            url: aboutPage.featuredImage.url,
+            alt: aboutPage.featuredImage.alt,
+            caption: 'Clean semantic HTML5 classes from Tailwind utilities'
+          } : {
+            url: 'https://images.unsplash.com/vector-1746618662777-7058cb830c6a?q=80&w=1934&auto=format&fit=crop',
+            alt: 'CSS Architecture',
+            caption: 'Utility to semantic transformation'
+          }
+        },
+        {
+          id: 2,
+          title: 'Component-Driven Development with CVA',
+          excerpt: 'Build robust React components using Class Variance Authority (CVA) patterns.',
+          featuredImage: {
+            url: 'https://images.unsplash.com/vector-1746618662777-7058cb830c6a?q=80&w=1934&auto=format&fit=crop',
+            alt: 'Component-Driven Development',
+            caption: 'CVA patterns for scalable component architecture'
+          }
+        },
+        {
+          id: 3,
+          title: 'Production-Ready Semantic HTML5 Output',
+          excerpt: 'Generate framework-agnostic, accessible HTML5 markup with semantic class names.',
+          featuredImage: {
+            url: 'https://images.unsplash.com/vector-1746618662777-7058cb830c6a?q=80&w=1934&auto=format&fit=crop',
+            alt: 'Production-Ready Semantic HTML5',
+            caption: 'Framework-agnostic semantic HTML5 for better performance'
+          }
+        }
+      ]
+    };
+  }
+
+  // Fallback to default static data
+  return {
+    page: {
+      title: 'Tailwind to Semantic HTML5 Transformation',
+      excerpt: 'Revolutionary approach to modern frontend development: Build with utility-first CSS, deploy with semantic HTML5 classes.',
+      content: 'Experience the future of component-driven development where Tailwind CSS utilities automatically transform into clean, semantic HTML5 classes. Our methodology bridges the gap between rapid prototyping and production-ready, maintainable code. Switch between development and production modes to see how utility classes become semantic BEM-like conventions instantly. Perfect for design systems, component libraries, and scalable frontend architecture.'
+    },
+    features: [
+      {
+        id: 1,
+        title: 'Utility-First to Semantic CSS Architecture',
+        excerpt: 'Leverage Tailwind CSS for rapid development while maintaining clean, semantic HTML5 output. Our automated extraction process converts utility classes into meaningful, BEM-inspired semantic classes that improve code readability, SEO performance, and maintainability.',
+        featuredImage: {
+          url: 'https://images.unsplash.com/vector-1746618662777-7058cb830c6a?q=80&w=1934&auto=format&fit=crop',
+          alt: 'Utility-First to Semantic CSS Architecture',
+          caption: 'Clean semantic HTML5 classes from Tailwind utilities'
+        }
+      },
+      {
+        id: 2,
+        title: 'Component-Driven Development with CVA',
+        excerpt: 'Build robust React components using Class Variance Authority (CVA) patterns that automatically generate semantic class variants. Perfect for design systems, atomic design methodology, and TypeScript-first development workflows that scale across enterprise applications.',
+        featuredImage: {
+          url: 'https://images.unsplash.com/vector-1746618662777-7058cb830c6a?q=80&w=1934&auto=format&fit=crop',
+          alt: 'Component-Driven Development',
+          caption: 'CVA patterns for scalable component architecture'
+        }
+      },
+      {
+        id: 3,
+        title: 'Production-Ready Semantic HTML5 Output',
+        excerpt: 'Generate framework-agnostic, accessible HTML5 markup with semantic class names that follow W3C standards. Ideal for headless CMS integration, server-side rendering, progressive web apps, and cross-platform compatibility with improved Core Web Vitals scores.',
+        featuredImage: {
+          url: 'https://images.unsplash.com/vector-1746618662777-7058cb830c6a?q=80&w=1934&auto=format&fit=crop',
+          alt: 'Production-Ready Semantic HTML5',
+          caption: 'Framework-agnostic semantic HTML5 for better performance'
+        }
+      }
+    ]
+  };
 }
 
 // Static posts for backward compatibility (fallback)

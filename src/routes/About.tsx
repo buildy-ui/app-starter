@@ -1,12 +1,59 @@
 import { Block, Stack, Title, Text, Grid, Card, Image } from '@ui8kit/core'
-import { renderContext } from '@/data'
+import { useRenderContext } from '@/data'
 import { SEO } from '@/ui/SEO'
 import { Breadcrumbs } from '@/ui/Breadcrumbs'
 import { useTheme } from '@/providers/theme'
 
 export default function About() {
-  const { about } = renderContext
+  const { context, loading, error } = useRenderContext()
   const { rounded } = useTheme()
+
+  if (loading) {
+    return (
+      <Block component="main" py="lg">
+        <Stack gap="lg">
+          <SEO title="Loading About..." description="Loading page content..." />
+          <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'About' }]} />
+          <Stack gap="lg">
+            <Title order={2} size="3xl" fw="bold">Loading About...</Title>
+            <Text size="md" c="secondary-foreground">Fetching page content...</Text>
+          </Stack>
+        </Stack>
+      </Block>
+    )
+  }
+
+  if (error) {
+    return (
+      <Block component="main" py="lg">
+        <Stack gap="lg">
+          <SEO title="About Error" description="Failed to load page content" />
+          <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'About' }]} />
+          <Stack gap="lg">
+            <Title order={2} size="3xl" fw="bold">About Error</Title>
+            <Text size="md" c="secondary-foreground">Failed to load page content: {error}</Text>
+          </Stack>
+        </Stack>
+      </Block>
+    )
+  }
+
+  if (!context) {
+    return (
+      <Block component="main" py="lg">
+        <Stack gap="lg">
+          <SEO title="About Not Available" description="Page content not available" />
+          <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'About' }]} />
+          <Stack gap="lg">
+            <Title order={2} size="3xl" fw="bold">Content Not Available</Title>
+            <Text size="md" c="secondary-foreground">Page content is not available at the moment.</Text>
+          </Stack>
+        </Stack>
+      </Block>
+    )
+  }
+
+  const { about } = context
   return (
     <Block component="main" py="lg">
       <Stack gap="lg">
@@ -18,7 +65,7 @@ export default function About() {
             <Text size="md" c="secondary-foreground">{about.page.excerpt}</Text>
           </Stack>
           <Grid cols="1-2-3" gap="lg">
-            {about.features.map((f) => (
+            {about.features.map((f: any) => (
               <Card key={f.id} p="lg" rounded={rounded.default} shadow="md" bg="card">
                 <Stack gap="lg">
                   {f.featuredImage?.url && (

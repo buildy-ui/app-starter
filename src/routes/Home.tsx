@@ -1,12 +1,62 @@
 import { Block, Stack, Title, Text, Button, Grid, Card, Group, Image } from '@ui8kit/core'
 import { SEO } from '@/ui/SEO'
 import { HomeLatest } from '@/ui/HomeLatest'
-import { renderContext } from '@/data'
+import { useRenderContext } from '@/data'
 import { useTheme } from '@/providers/theme'
 
 export default function Home() {
-  const { home } = renderContext
+  const { context, loading, error } = useRenderContext()
   const { rounded } = useTheme()
+
+  if (loading) {
+    return (
+      <Block component="main" py="lg">
+        <Stack gap="lg">
+          <SEO title="Loading..." description="Loading page content..." />
+          <Stack gap="2xl" py="lg" data-class="hero-section">
+            <Stack gap="md" align="center" ta="center">
+              <Title order={1} size="4xl" fw="bold" c="foreground">Loading...</Title>
+              <Text size="lg" c="secondary-foreground" leading="relaxed">Fetching page content...</Text>
+            </Stack>
+          </Stack>
+        </Stack>
+      </Block>
+    )
+  }
+
+  if (error) {
+    return (
+      <Block component="main" py="lg">
+        <Stack gap="lg">
+          <SEO title="Error" description="Failed to load page content" />
+          <Stack gap="2xl" py="lg" data-class="hero-section">
+            <Stack gap="md" align="center" ta="center">
+              <Title order={1} size="4xl" fw="bold" c="foreground">Error</Title>
+              <Text size="lg" c="secondary-foreground" leading="relaxed">Failed to load page content: {error}</Text>
+            </Stack>
+          </Stack>
+        </Stack>
+      </Block>
+    )
+  }
+
+  if (!context) {
+    return (
+      <Block component="main" py="lg">
+        <Stack gap="lg">
+          <SEO title="Not Available" description="Page content not available" />
+          <Stack gap="2xl" py="lg" data-class="hero-section">
+            <Stack gap="md" align="center" ta="center">
+              <Title order={1} size="4xl" fw="bold" c="foreground">Content Not Available</Title>
+              <Text size="lg" c="secondary-foreground" leading="relaxed">Page content is not available at the moment.</Text>
+            </Stack>
+          </Stack>
+        </Stack>
+      </Block>
+    )
+  }
+
+  const { home } = context
   return (
     <Block component="main" py="lg">
       <SEO title={home.page.title} description={home.page.excerpt} />
