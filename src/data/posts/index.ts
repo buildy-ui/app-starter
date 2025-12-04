@@ -5,7 +5,8 @@ type PostsCollection = {
 };
 
 // GraphQL API configuration
-const GRAPHQL_ENDPOINT = 'https://maxql.app-server.ru/graphql';
+// В SSR режиме этот URL будет использоваться только на сервере
+const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT || 'https://maxql.app-server.ru/graphql';
 
 interface GraphQLPost {
   id: string;
@@ -93,6 +94,7 @@ async function fetchPostsFromAPI(): Promise<GraphQLPost[]> {
     }
   `;
 
+  console.log('fetchPostsFromAPI: Making request to GraphQL API...');
   try {
     const response = await fetch(GRAPHQL_ENDPOINT, {
       method: 'POST',
@@ -102,11 +104,14 @@ async function fetchPostsFromAPI(): Promise<GraphQLPost[]> {
       body: JSON.stringify({ query }),
     });
 
+    console.log('fetchPostsFromAPI: Response status:', response.status);
+
     if (!response.ok) {
       throw new Error(`GraphQL API error: ${response.status}`);
     }
 
     const result: GraphQLResponse = await response.json();
+    console.log('fetchPostsFromAPI: Received', result.data.posts.nodes.length, 'posts');
     return result.data.posts.nodes;
   } catch (error) {
     console.error('Failed to fetch posts from GraphQL API:', error);

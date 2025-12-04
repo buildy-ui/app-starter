@@ -4,14 +4,68 @@ import { SEO } from '@/ui/SEO'
 import { PostCard } from '@/ui/PostCard'
 import { Pagination } from '@/ui/Pagination'
 import { useMemo, useState } from 'react'
-import { renderContext } from '@/data'
+import { useRenderContext } from '@/data'
 
 export default function Blog() {
-  const { blog, posts } = renderContext
+  const { context, loading, error } = useRenderContext()
   const [page, setPage] = useState(1)
   const perPage = 3
-  const total = Math.max(1, Math.ceil(posts.posts.length / perPage))
-  const pageItems = useMemo(() => posts.posts.slice((page - 1) * perPage, page * perPage), [page])
+
+  console.log('Blog component:', { context, loading, error });
+
+  // Always calculate pagination data, but with fallback
+  const postsData = context?.posts.posts || []
+  const total = Math.max(1, Math.ceil(postsData.length / perPage))
+  const pageItems = useMemo(() => postsData.slice((page - 1) * perPage, page * perPage), [postsData, page])
+
+  // Show loading state
+  if (loading) {
+    return (
+      <Block component="main" py="lg">
+        <Stack gap="lg">
+          <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Blog' }]} />
+          <Stack gap="md">
+            <Title order={1} size="2xl">Loading Blog...</Title>
+            <Text c="secondary-foreground">Fetching posts from CMS...</Text>
+          </Stack>
+        </Stack>
+      </Block>
+    )
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <Block component="main" py="lg">
+        <Stack gap="lg">
+          <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Blog' }]} />
+          <Stack gap="md">
+            <Title order={1} size="2xl">Blog Error</Title>
+            <Text c="secondary-foreground">Failed to load posts: {error}</Text>
+          </Stack>
+        </Stack>
+      </Block>
+    )
+  }
+
+  // Use context data
+  if (!context) {
+    return (
+      <Block component="main" py="lg">
+        <Stack gap="lg">
+          <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Blog' }]} />
+          <Stack gap="md">
+            <Title order={1} size="2xl">Blog</Title>
+            <Text c="secondary-foreground">No data available</Text>
+          </Stack>
+        </Stack>
+      </Block>
+    )
+  }
+
+  const { blog, posts } = context
+  console.log('Loaded posts:', posts.posts.length);
+
   return (
     <Block component="main" py="lg">
       <Stack gap="lg">
@@ -23,7 +77,7 @@ export default function Blog() {
         </Stack>
 
         <Grid cols="1-2-3" gap="lg">
-          {pageItems.map((p) => (
+          {pageItems.map((p: any) => (
             <PostCard key={p.id} post={p as any} />
           ))}
         </Grid>

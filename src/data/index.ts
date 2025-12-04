@@ -99,13 +99,17 @@ export const renderContext = {
 
 // React hook for loading render context dynamically
 export function useRenderContext() {
-  const [context, setContext] = React.useState<typeof renderContext | null>(null);
+  const [context, setContext] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
+    console.log('useRenderContext: Starting to load data...');
     getRenderContext()
-      .then(setContext)
+      .then((data) => {
+        console.log('useRenderContext: Data loaded successfully', data.posts.posts.length, 'posts');
+        setContext(data);
+      })
       .catch((err) => {
         console.error('Failed to load render context:', err);
         setError(err.message);

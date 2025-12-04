@@ -1,10 +1,41 @@
 import { Stack, Title, Text, Grid } from '@ui8kit/core'
-import { renderContext } from '@/data'
+import { useRenderContext } from '@/data'
 import { PostCard } from '@/ui/PostCard'
 
 export function HomeLatest() {
-  const { posts } = renderContext
-  const latest = posts.posts.slice(0, 4)
+  const { context, loading, error } = useRenderContext()
+
+  // Always calculate latest posts, but with fallback
+  const postsData = context?.posts.posts || []
+  const latest = postsData.slice(0, 4)
+
+  if (loading) {
+    return (
+      <Stack gap="md">
+        <Title order={2} size="2xl">Latest Posts</Title>
+        <Text c="secondary-foreground">Loading posts...</Text>
+      </Stack>
+    )
+  }
+
+  if (error) {
+    return (
+      <Stack gap="md">
+        <Title order={2} size="2xl">Latest Posts</Title>
+        <Text c="secondary-foreground">Failed to load posts</Text>
+      </Stack>
+    )
+  }
+
+  if (!context) {
+    return (
+      <Stack gap="md">
+        <Title order={2} size="2xl">Latest Posts</Title>
+        <Text c="secondary-foreground">No posts available</Text>
+      </Stack>
+    )
+  }
+
   return (
     <Stack gap="md">
       <Title order={2} size="2xl">Latest Posts</Title>
