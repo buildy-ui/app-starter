@@ -1,6 +1,6 @@
 import { useSearchParams } from 'react-router-dom'
 import { Block, Stack, Title, Text, Grid } from '@ui8kit/core'
-import { renderContext } from '@/data'
+import { useRenderContext } from '@/data'
 import { Breadcrumbs } from '@/ui/Breadcrumbs'
 import { SEO } from '@/ui/SEO'
 import { PostCard } from '@/ui/PostCard'
@@ -12,7 +12,32 @@ import { SearchBar } from '@/ui/SearchBar'
 export default function Search() {
   const [sp] = useSearchParams()
   const q = (sp.get('q') || '').trim().toLowerCase()
-  const { posts, categories, tags, authors } = renderContext
+  const { context, loading, error } = useRenderContext()
+
+  if (loading) {
+    return (
+      <Block component="main" py="lg">
+        <Stack gap="lg">
+          <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Search' }]} />
+          <Title order={1} size="2xl">Loading Search...</Title>
+        </Stack>
+      </Block>
+    )
+  }
+
+  if (error) {
+    return (
+      <Block component="main" py="lg">
+        <Stack gap="lg">
+          <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Search' }]} />
+          <Title order={1} size="2xl">Search Error</Title>
+          <Text>Failed to load search data: {error}</Text>
+        </Stack>
+      </Block>
+    )
+  }
+
+  const { posts, categories, tags, authors } = context!
 
   const postHits = posts.posts.filter(p => p.title.toLowerCase().includes(q) || p.excerpt.toLowerCase().includes(q))
   const catHits = categories.filter(c => c.name.toLowerCase().includes(q))

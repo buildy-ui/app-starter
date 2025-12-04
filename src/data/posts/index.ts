@@ -116,6 +116,143 @@ async function fetchPostsFromAPI(): Promise<GraphQLPost[]> {
   }
 }
 
+// Function to fetch all categories
+async function fetchCategoriesFromAPI(): Promise<Array<{
+  id: string;
+  categoryId: number;
+  name: string;
+  slug: string;
+  description?: string;
+  count: number;
+}>> {
+  const query = `
+    {
+      categories(first: 50) {
+        nodes {
+          id
+          categoryId
+          name
+          slug
+          description
+          count
+        }
+      }
+    }
+  `;
+
+  try {
+    const response = await fetch(GRAPHQL_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Categories API error: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return result.data?.categories?.nodes || [];
+  } catch (error) {
+    console.error('Failed to fetch categories:', error);
+    return [];
+  }
+}
+
+// Function to fetch all tags
+async function fetchTagsFromAPI(): Promise<Array<{
+  id: string;
+  tagId: number;
+  name: string;
+  slug: string;
+  count: number;
+}>> {
+  const query = `
+    {
+      tags(first: 100) {
+        nodes {
+          id
+          tagId
+          name
+          slug
+          count
+        }
+      }
+    }
+  `;
+
+  try {
+    const response = await fetch(GRAPHQL_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Tags API error: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return result.data?.tags?.nodes || [];
+  } catch (error) {
+    console.error('Failed to fetch tags:', error);
+    return [];
+  }
+}
+
+// Function to fetch all users/authors
+async function fetchUsersFromAPI(): Promise<Array<{
+  id: string;
+  userId: number;
+  name: string;
+  slug: string;
+  email?: string;
+  avatar?: {
+    url: string;
+  };
+}>> {
+  const query = `
+    {
+      users(first: 50) {
+        nodes {
+          id
+          userId
+          name
+          slug
+          email
+          avatar {
+            url
+          }
+        }
+      }
+    }
+  `;
+
+  try {
+    const response = await fetch(GRAPHQL_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Users API error: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return result.data?.users?.nodes || [];
+  } catch (error) {
+    console.error('Failed to fetch users:', error);
+    return [];
+  }
+}
+
 // Transform GraphQL post to our internal format
 function transformGraphQLPostToInternal(post: GraphQLPost): any {
   return {
@@ -188,6 +325,63 @@ export async function getPosts(): Promise<PostsCollection> {
   return {
     posts: transformedPosts
   };
+}
+
+// Async function to get all categories
+export async function getCategories(): Promise<Array<{
+  id: number;
+  name: string;
+  slug: string;
+  count: number;
+  description?: string;
+}>> {
+  const apiCategories = await fetchCategoriesFromAPI();
+
+  return apiCategories.map(cat => ({
+    id: cat.categoryId,
+    name: cat.name,
+    slug: cat.slug,
+    count: cat.count || 0,
+    description: cat.description || `${cat.name} posts`
+  })).sort((a, b) => a.name.localeCompare(b.name));
+}
+
+// Async function to get all tags
+export async function getTags(): Promise<Array<{
+  id: number;
+  name: string;
+  slug: string;
+  count: number;
+}>> {
+  const apiTags = await fetchTagsFromAPI();
+
+  return apiTags.map(tag => ({
+    id: tag.tagId,
+    name: tag.name,
+    slug: tag.slug,
+    count: tag.count || 0
+  })).sort((a, b) => a.name.localeCompare(b.name));
+}
+
+// Async function to get all authors/users
+export async function getAuthors(): Promise<Array<{
+  id: number;
+  name: string;
+  slug: string;
+  count: number;
+  avatar?: string;
+  bio?: string;
+}>> {
+  const apiUsers = await fetchUsersFromAPI();
+
+  return apiUsers.map(user => ({
+    id: user.userId,
+    name: user.name,
+    slug: user.slug,
+    count: 0, // Will be calculated from posts
+    avatar: user.avatar?.url,
+    bio: '' // Can be extended with additional user data
+  })).sort((a, b) => a.name.localeCompare(b.name));
 }
 
 // Static posts for backward compatibility (fallback)

@@ -1,10 +1,23 @@
 import { Stack, Title } from '@ui8kit/core'
-import { renderContext } from '@/data'
+import { useRenderContext } from '@/data'
 import { SmallMediaCard } from '@/ui/SmallMediaCard'
 
 export function PopularPosts() {
-  const { posts } = renderContext
-  const popular = posts.posts.slice(0, 5)
+  const { context, loading } = useRenderContext()
+
+  // Always calculate popular posts, but with fallback
+  const postsData = context?.posts.posts || []
+  const popular = postsData.slice(0, 5)
+
+  if (loading) {
+    return (
+      <Stack gap="md">
+        <Title order={3} size="lg">Popular Posts</Title>
+        <Stack gap="sm">Loading...</Stack>
+      </Stack>
+    )
+  }
+
   return (
     <Stack gap="md">
       <Title order={3} size="lg">Popular Posts</Title>

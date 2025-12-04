@@ -1,13 +1,38 @@
 import { useParams, Link } from 'react-router-dom'
 import { Block, Stack, Title, Text, Grid, Button } from '@ui8kit/core'
-import { renderContext } from '@/data'
+import { useRenderContext } from '@/data'
 import { Breadcrumbs } from '@/ui/Breadcrumbs'
 import { PostCard } from '@/ui/PostCard'
 import { SEO } from '@/ui/SEO'
 
 export default function Author() {
   const { slug } = useParams<{ slug: string }>()
-  const { posts } = renderContext
+  const { context, loading, error } = useRenderContext()
+
+  if (loading) {
+    return (
+      <Block component="main" py="lg">
+        <Stack gap="lg">
+          <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Blog', to: '/blog' }, { label: 'Loading...' }]} />
+          <Title order={1} size="2xl">Loading Author...</Title>
+        </Stack>
+      </Block>
+    )
+  }
+
+  if (error) {
+    return (
+      <Block component="main" py="lg">
+        <Stack gap="lg">
+          <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Blog', to: '/blog' }, { label: 'Error' }]} />
+          <Title order={1} size="2xl">Author Error</Title>
+          <Text>Failed to load author: {error}</Text>
+        </Stack>
+      </Block>
+    )
+  }
+
+  const { posts } = context!
   const filtered = posts.posts.filter(p => p.author?.slug === slug)
   const authorName = filtered[0]?.author?.name || 'Author'
 
