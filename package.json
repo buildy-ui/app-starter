@@ -10,10 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "lucide-react": "^0.555.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-strict-dom": "^0.0.54",
-    "lucide-react": "^0.555.0"
+    "react-router-dom": "^7.10.1",
+    "react-strict-dom": "^0.0.54"
   },
   "devDependencies": {
     "@types/node": "^24.5.2",

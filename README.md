@@ -81,9 +81,26 @@ cd create-app
 # Install dependencies
 bun install
 
+# Configure environment (optional)
+cp env.example .env
+
 # Start development
-bun run dev:web
+bun run dev
 ```
+
+## 🔧 Environment Configuration
+
+The application supports dynamic content loading from a GraphQL API. Configure the endpoint:
+
+```bash
+# Copy environment template
+cp env.example .env
+
+# Edit .env file
+VITE_GRAPHQL_ENDPOINT=https://your-graphql-api.com/graphql
+```
+
+See [README-env.md](README-env.md) for detailed environment setup instructions.
 
 ## 📁 Project Structure
 

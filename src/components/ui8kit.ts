@@ -10,7 +10,8 @@ export { Title, type TitleProps } from "./ui/Title";
 export { Text, type TextProps } from "./ui/Text";
 
 // Interactive Components
-export { Button, type ButtonProps } from "./ui/Button";
+// export { Button, type ButtonProps } from "./ui/Button";
+export { Button, type ButtonProps } from "./mod/Button";
 export { Badge, type BadgeProps } from "./ui/Badge";
 
 // Media Components
