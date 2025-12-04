@@ -5,8 +5,7 @@ type PostsCollection = {
 };
 
 // GraphQL API configuration
-// В SSR режиме этот URL будет использоваться только на сервере
-const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT || 'https://maxql.app-server.ru/graphql';
+const GRAPHQL_ENDPOINT = 'https://maxql.app-server.ru/graphql';
 
 interface GraphQLPost {
   id: string;
