@@ -1,11 +1,14 @@
+import React from 'react';
 import { site, menu } from './wpfasty/context';
 import { about } from './pages/about';
 import { home } from './pages/home';
 import { blog } from './pages/blog';
-import { posts as rawPosts } from './posts';
+import { getPosts } from './posts';
 
 // Normalize and aggregate derived data so counts are consistent
-function normalize() {
+async function normalize() {
+  const rawPosts = await getPosts();
+
   const byCat = new Map<string, number>();
   const catMeta = new Map<string, { id: number; name: string; slug: string }>();
   const byTag = new Map<string, number>();
@@ -64,25 +67,62 @@ function normalize() {
   return { posts, categories, tags, authors };
 }
 
-const { posts, categories, tags, authors } = normalize();
+// Async function to get render context with dynamic posts
+export async function getRenderContext() {
+  const { posts, categories, tags, authors } = await normalize();
 
-// Current implementation - static data
+  return {
+    about,
+    home,
+    blog,
+    posts,
+    categories,
+    tags,
+    authors,
+    site,
+    menu,
+  } as const;
+}
+
+// Current implementation - static data (for backward compatibility)
 export const renderContext = {
   about,
   home,
   blog,
-  posts,
-  categories,
-  tags,
-  authors,
+  posts: { posts: [] }, // Empty fallback
+  categories: [],
+  tags: [],
+  authors: [],
   site,
   menu,
 } as const;
 
-// Future implementation may include:
-// - API calls
-// - CMS integration  
-// - Caching layer
-// - Error handling
+// React hook for loading render context dynamically
+export function useRenderContext() {
+  const [context, setContext] = React.useState<typeof renderContext | null>(null);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    getRenderContext()
+      .then(setContext)
+      .catch((err) => {
+        console.error('Failed to load render context:', err);
+        setError(err.message);
+        // Fallback to static context
+        setContext(renderContext);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  return { context, loading, error };
+}
+
+// Future implementation includes:
+// ✅ API calls
+// ✅ CMS integration
+// ✅ Error handling
+// ✅ React hook for dynamic loading
+// - Caching layer (next step)
 
 export type RenderContextKey = keyof typeof renderContext;
