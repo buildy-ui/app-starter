@@ -11,6 +11,7 @@ bun.lock
 package-lock.json
 .env
 .env.*
+*.log
 
 ## build
 vite.config.d.ts

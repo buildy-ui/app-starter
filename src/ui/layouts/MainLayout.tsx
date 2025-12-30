@@ -20,7 +20,7 @@ export function MainLayout({ children, sidebar = 'right' as 'left' | 'right' | '
 
   return (
     <>
-      <Block component="nav" py="xs" bg="background" data-class="nav-bar" borderBottom="1px" borderColor="border" shadow="lg">
+      <Block component="nav" py="xs" bg="background" data-class="nav-bar" border="b" border="border" shadow="lg">
         <Container size="lg">
           <Group justify="between" align="center">
             <Group align="center" gap="md">
@@ -84,7 +84,7 @@ export function MainLayout({ children, sidebar = 'right' as 'left' | 'right' | '
         </Container>
       </Block>
 
-      <Block component="footer" py="md" borderTop="1px" borderColor="border" bg="card" data-class="site-footer">
+      <Block component="footer" py="md" border="t" border="border" bg="card" data-class="site-footer">
         <Container size="lg">
           <Stack gap="lg" align="center">
             <Text size="sm" c="secondary-foreground" ta="center">© 2025 UI8Kit Design System</Text>

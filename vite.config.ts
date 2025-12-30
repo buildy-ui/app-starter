@@ -14,7 +14,7 @@ export default defineConfig(({ mode }) => {
       dedupe: ['react', 'react-dom'],
       alias: {
         '@': path.resolve(__dirname, './src'),
-        '@ui8kit/core': path.resolve(__dirname, './src/components/ui8kit')
+        '@ui8kit/core': path.resolve(__dirname, './src/components/index')
       }
     },
     define: {
